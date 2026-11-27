@@ -44,9 +44,19 @@ A Kaggle grader takes a submission table and an answer table and returns a score
 
 The synthetic answers table (decision D5) has the competition's schema (id column, label column, the right dtypes and value ranges) with values chosen so that a valid reference submission scores a known, sensible value. The checks test the grader's validation and arithmetic, which do not depend on the specific ground-truth values. Each contract's `COVERAGE.md` states that answers are synthetic and what schema they follow.
 
-### 3.3 The open harness question (decision D9)
+### 3.3 The harness question, resolved by the pilot (decision D12)
 
-The pilot (Phase 3) runs three MLE-bench graders end to end through `consilience stress` with the glue above. If the engine drives them cleanly, Leg A uses the engine directly. If a grader cannot be expressed (for example, a grader that reads files by path rather than taking DataFrames), the fallback is a thin adapter in this repository that presents the grader to the engine as a `function`, or, only if that fails, a contract-driven runner in the engine's verdict and receipt vocabulary. The outcome is recorded in `DECISIONS.md` and `VERIFICATION_LOG.md`.
+The pilot ran the real champs-scalar-coupling and nomad2018 grading pipelines on crafted submissions. It showed that the real flaws in these graders are a metric-aggregation flaw and a positional-alignment flaw, and that `consilience stress`'s attack generator (invalid input, self-report, naive search, single-field invariance, record) does not produce these attacks and would return PASS. So Leg A does not use the stress attack generator.
+
+Leg A instead uses a reusable contract-driven checker, `src/mleb_check.py`, that reuses the engine's `PASS` / `BLOCK` / `ABSTAIN` verdicts and the receipt and independent-second-way discipline, and adds the attacks the submission-grader shape needs:
+- `reject_nonfinite`: NaN and `±inf` predictions. BLOCK if an accepted non-finite submission gets any medal.
+- `order_invariance`: the same submission in a different row order (id to value mapping preserved). BLOCK if the score changes.
+- `reject_wrong_length`, `reject_duplicate_ids`: BLOCK if accepted with a changed or medal-winning score.
+- `range`: out-of-range predictions where the task bounds them. BLOCK if accepted with a gain.
+- `exceeds_bound`: a score beyond a bounded metric's range (accuracy or AUROC above 1), or a non-finite score crossing a medal threshold.
+- `no_free_gold_subset_perfect`: a submission perfect on one aggregation group only. BLOCK if it wins a medal (the champs case).
+
+Each contract lists the checks that apply to its grader. The checker runs the real grading pipeline (`Grader.__call__` plus `rank_score`), so the shared-helper gap is exercised as published. A "tabular submission grader" harness is filed as a proposed `consilience stress` capability in `research/06-proposed-engine-capability.md`. This is the SPEC's reuse-first, extend-where-missing rule, and the fallback the preregistration named.
 
 ## 4. Leg B: simple-evals extractors
 

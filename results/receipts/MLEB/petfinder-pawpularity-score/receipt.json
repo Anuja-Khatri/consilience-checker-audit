@@ -1,0 +1,80 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "petfinder-pawpularity-score",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/petfinder-pawpularity-score/grade.py"
+  },
+  "contract_author": "model",
+  "contract_sha256": "ef2d93c4a4cb5c9afaa729141f6deda1035dd8e2a8a3b1c92d906338273e5a7f",
+  "grade_file_sha256": "5b39f4086731497ba741ca20945a43facc788766960e2704d0321a80627e966c",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "Id": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "Pawpularity": [
+      20,
+      40,
+      60,
+      80,
+      95
+    ]
+  },
+  "synthetic_leaderboard": [
+    5,
+    8,
+    10,
+    12,
+    15,
+    18,
+    20,
+    25,
+    30,
+    40
+  ],
+  "reference_score": 2.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (2.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (4 of 5 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    },
+    {
+      "check": "range",
+      "verdict": "PASS",
+      "detail": "out-of-range value 1100.0 rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T08:48:23.709230+00:00"
+}

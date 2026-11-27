@@ -1,0 +1,45 @@
+kind: mleb-grader-contract
+competition_id: champs-scalar-coupling
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/champs-scalar-coupling/grade.py
+description: >
+  Metric: the mean over coupling types of log(MAE_type). Lower is better.
+  Validity (from the Kaggle task): a submission has an id column matching the
+  answers' ids and a scalar_coupling_constant prediction per id.
+
+id_column: id
+prediction_columns: [scalar_coupling_constant]
+submission_extra_columns: []
+group_column: type       # the grader averages log(MAE) across these groups
+
+metric:
+  direction: lower_better
+  bounded: [null, null]   # log(MAE) is unbounded below; a zero-MAE group gives -inf
+
+answers:
+  id: [0, 1, 2, 3, 4, 5]
+  columns:
+    scalar_coupling_constant: [80.0, 84.0, 90.0, 10.0, 12.0, 15.0]
+    type: ["1JHC", "1JHC", "1JHC", "2JHH", "2JHH", "2JHH"]
+
+leaderboard: [-2.2, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0]
+
+reference:
+  kind: offset
+  offset: 3.0             # a valid submission 3 units off, a finite log-MAE
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+  - no_free_gold_subset_perfect
+
+labels: [MLEB-KNOWN-06]   # duplicate-id acceptance is known (#156); the -inf-from-one-perfect-group path is checked for novelty separately
+notes: >
+  The no_free_gold_subset_perfect check targets the metric-aggregation flaw found
+  in the pilot: a submission perfect on one coupling type only drives the mean
+  log-MAE to -inf and wins gold. The duplicate-id check relates to known issue #156.

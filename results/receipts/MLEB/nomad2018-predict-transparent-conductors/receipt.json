@@ -1,0 +1,109 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "nomad2018-predict-transparent-conductors",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/nomad2018-predict-transparent-conductors/grade.py"
+  },
+  "contract_author": "model",
+  "contract_sha256": "56a84f1470d27d38fd99a42bfa023e589d9d638e40ff5c7bc68d2fec80dcc1a7",
+  "grade_file_sha256": "11c1e5df47d29f5eb4ebe205990c71dd59819510ad25972bd9a506a0392ac50b",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "id": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "formation_energy_ev_natom": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "bandgap_energy_ev": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      5.0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.02,
+    0.03,
+    0.05,
+    0.08,
+    0.1,
+    0.15,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "reference_score": 0.01089,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "BLOCK",
+      "detail": "reference score 0.01089 changed to 0.34899 under a row permutation",
+      "counterexample": {
+        "attack": "same submission, rows shuffled (id->value preserved)",
+        "submission": {
+          "id": [
+            3,
+            2,
+            5,
+            1,
+            4
+          ],
+          "formation_energy_ev_natom": [
+            0.32,
+            0.22,
+            0.52,
+            0.12000000000000001,
+            0.42000000000000004
+          ],
+          "bandgap_energy_ev": [
+            3.02,
+            2.02,
+            5.02,
+            1.02,
+            4.02
+          ]
+        },
+        "reference_score": 0.01089,
+        "observed_score": 0.34899,
+        "observed_medal": "none"
+      }
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (4 of 5 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T08:48:21.112339+00:00"
+}

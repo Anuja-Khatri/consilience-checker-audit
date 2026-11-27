@@ -1,0 +1,46 @@
+kind: mleb-grader-contract
+competition_id: nomad2018-predict-transparent-conductors
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/nomad2018-predict-transparent-conductors/grade.py
+description: >
+  Metric: the mean of two RMSLE values (formation energy and bandgap). Lower is
+  better. Validity (from the Kaggle task): a submission has an id column matching
+  the answers, and two non-negative prediction columns, one row per id.
+
+id_column: id
+prediction_columns: [formation_energy_ev_natom, bandgap_energy_ev]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+answers:
+  id: [1, 2, 3, 4, 5]
+  columns:
+    formation_energy_ev_natom: [0.10, 0.20, 0.30, 0.40, 0.50]
+    bandgap_energy_ev: [1.0, 2.0, 3.0, 4.0, 5.0]
+
+leaderboard: [0.02, 0.03, 0.05, 0.08, 0.10, 0.15, 0.20, 0.30, 0.40, 0.50]
+
+reference:
+  kind: offset
+  offset: 0.02             # a valid submission slightly off, a small RMSLE
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  The order_invariance check targets the positional-grading flaw found in the
+  pilot: the grader reads the two prediction columns by row position and ignores
+  the id column, so the same submission in a different row order scores
+  differently. Not matched to any known public issue in LABELS.yaml; checked for
+  novelty.
