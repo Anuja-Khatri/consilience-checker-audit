@@ -10,3 +10,8 @@ numpy==2.5.5
 pandas==2.3.3
 scikit-learn==1.7.2
 scipy==1.18.1
+
+# Dependencies the MLE-bench demonstration graders import from their own grade.py
+# (needed only to reproduce the OpenAI demonstration, not by the tool itself).
+Levenshtein
+tqdm
