@@ -65,4 +65,4 @@ Findings concern published code at a named commit. Any finding goes to OpenAI fi
 
 ## License
 
-Code in this repository: Apache-2.0 (see `LICENSE`). Any third-party checker code vendored under `contracts/*/` keeps its own license and carries a provenance header; see that file and `SOURCES.yaml`.
+Code in this repository: MIT (see `LICENSE`), matching the Consilience engine. Any third-party checker code vendored under `contracts/*/` keeps its own license and carries a provenance header; see that file and `SOURCES.yaml`. The audited targets at their pinned commits: simple-evals is MIT; mle-bench carries its own `LICENSE`, confirmed during contract authoring.

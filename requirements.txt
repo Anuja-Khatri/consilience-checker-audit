@@ -1,0 +1,12 @@
+# The Consilience engine (from PyPI), pinned to the version used for all runs,
+# plus the packages the audit harness and the vendored graders import.
+# Install with: pip install -r requirements.txt
+#
+# Third-party target graders may pull additional dependencies; those are
+# installed into an isolated virtual environment at run time, never here.
+
+consilience[stress]==0.3.0
+numpy==2.5.5
+pandas==2.3.3
+scikit-learn==1.7.2
+scipy==1.18.1
