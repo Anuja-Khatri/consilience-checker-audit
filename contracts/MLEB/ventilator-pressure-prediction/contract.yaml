@@ -1,0 +1,52 @@
+kind: mleb-grader-contract
+competition_id: ventilator-pressure-prediction
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/ventilator-pressure-prediction/grade.py
+description: >
+  Metric: mean absolute error on pressure, over rows where u_out == 0 (the
+  expiratory phase is not scored). Lower is better, unbounded above. Validity
+  (from the Kaggle task): a submission has an id column matching the answers and
+  a numeric pressure per id. The answers carry a u_out column used only to
+  select the scored rows; it is not part of a submission.
+
+id_column: id
+prediction_columns: [pressure]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+answers:
+  id: [1, 2, 3, 4, 5]
+  columns:
+    pressure: [5.0, 10.0, 15.0, 20.0, 25.0]
+    u_out: [0, 0, 0, 0, 0]
+
+leaderboard: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+reference:
+  kind: offset
+  offset: 1.0              # MAE = 1.0, a valid finite score
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD. The grader checks the id/pressure columns, equal row count
+  (reject_wrong_length PASS; a duplicated id makes the row count differ ->
+  InvalidSubmissionError, reject_duplicate_ids PASS), sorts by id and checks the
+  id values after sorting (order_invariance PASS). No finiteness guard, but the
+  metric is MAE (lower is better): a NaN prediction gives NaN (no medal) and an
+  infinite prediction gives +inf (worst, no medal), so reject_nonfinite PASS.
+  No prediction range is enforced and MAE is unbounded above, so the range check
+  is not listed. The u_out == 0 filter is the intended "expiratory phase not
+  scored" rule, not a gap.

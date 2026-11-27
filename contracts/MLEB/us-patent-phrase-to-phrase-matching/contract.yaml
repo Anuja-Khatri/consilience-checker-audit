@@ -1,0 +1,49 @@
+kind: mleb-grader-contract
+competition_id: us-patent-phrase-to-phrase-matching
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/us-patent-phrase-to-phrase-matching/grade.py
+description: >
+  Metric: Pearson correlation between predicted and actual similarity scores.
+  Bounded [-1, 1], higher is better. Validity (from the Kaggle task): a
+  submission has an id column matching the answers and a numeric score per id.
+
+id_column: id
+prediction_columns: [score]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [-1, 1]
+
+answers:
+  id: [0, 1, 2, 3, 4]
+  columns:
+    score: [0.0, 0.25, 0.5, 0.75, 1.0]
+
+leaderboard: [0.85, 0.83, 0.80, 0.78, 0.75, 0.70, 0.65, 0.60, 0.50, 0.40]
+
+reference:
+  kind: offset
+  offset: 0.1              # a linear offset preserves a perfect Pearson r = 1.0
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD. The grader sorts by id and checks the id set after sorting
+  (order_invariance PASS), checks equal row count (reject_wrong_length PASS, and
+  a duplicated id makes the row count differ -> InvalidSubmissionError, so
+  reject_duplicate_ids PASS). There is no explicit finiteness guard, but the
+  metric is a bounded Pearson r: a NaN prediction yields NaN (no medal) and an
+  infinite prediction collapses the correlation to NaN (no medal), so
+  reject_nonfinite PASS. Confirms the prior note that NaN -> no medal on this
+  bounded metric. No prediction range is enforced by the grader and the metric
+  is a bounded correlation, so the range check is not listed.

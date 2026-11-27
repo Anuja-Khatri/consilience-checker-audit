@@ -1,0 +1,63 @@
+kind: mleb-grader-contract
+competition_id: new-york-city-taxi-fare-prediction
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/new-york-city-taxi-fare-prediction/grade.py
+description: >
+  Metric: RMSE of fare_amount. Lower is better. The grader checks only that the
+  submission has a 'fare_amount' and a 'key' column, then sorts BOTH submission
+  and answers by 'key' and grades positionally. There is no length check, no
+  id/key-set match check and no NaN/inf guard.
+
+id_column: key
+prediction_columns: [fare_amount]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]        # RMSE >= 0, unbounded above
+
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    fare_amount: [5.0, 7.5, 10.0, 12.5, 15.0, 20.0]
+
+leaderboard: [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0]
+
+reference:
+  kind: offset
+  offset: 1.0               # a valid submission 1.0 off -> RMSE 1.0
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Prior inspection flagged: no length check, no id/key-match check, positional
+  grading after a sort on 'key', and no NaN/inf guard. Checked against the code:
+  NONE of these reproduce a medal-winning exploit with the available checks, so
+  this HOLDS honestly rather than being forced to a BLOCK.
+  (1) reject_nonfinite PASSES: the grader itself has no finiteness guard, but
+  this sklearn version's root_mean_squared_error input validation raises on NaN
+  and on +/-inf, which Grader.__call__ swallows to None (rejected). Even absent
+  that, the metric is lower-better and unbounded above, so a NaN/inf score could
+  win no medal. The missing guard is real in the grader but benign here.
+  (2) order_invariance PASSES: the grader sorts both frames by 'key', so a row
+  permutation that preserves the key->fare pairing is realigned by the sort.
+  (3) reject_wrong_length PASSES: a short submission reaches sklearn
+  root_mean_squared_error with mismatched array lengths -> ValueError, which
+  Grader.__call__ swallows to None (rejected). The grader has no explicit length
+  check; the rejection is incidental via sklearn.
+  (4) reject_duplicate_ids PASSES: a duplicated key makes the submission one row
+  longer than the answers, again tripping sklearn's length check -> None.
+  The genuine residual gap (a submission whose keys do NOT match the answers but
+  whose row count DOES match, graded silently position-by-position after the
+  sort) is real but is not exercised by any of the six harness checks; it is not
+  a medal-winning path on its own and is noted here rather than claimed as a
+  reproduced BLOCK.

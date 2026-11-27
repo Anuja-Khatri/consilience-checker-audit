@@ -8,6 +8,12 @@
     "grade_path": "mlebench/competitions/champs-scalar-coupling/grade.py"
   },
   "contract_author": "model",
+  "id_column": "id",
+  "prediction_columns": [
+    "scalar_coupling_constant"
+  ],
+  "group_column": "type",
+  "prediction_range": null,
   "contract_sha256": "bc4cd433ecb98f6374698ab1d285f4521daf7282b79be7aa9cef434743714594",
   "grade_file_sha256": "0f1be05ca638a7caa4ade9fa22fe2953edd0f5093a4366fcc2456ae19ae61f62",
   "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
@@ -135,5 +141,5 @@
     "MLEB-KNOWN-06"
   ],
   "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
-  "created": "2026-11-27T08:48:18.870036+00:00"
+  "created": "2026-11-27T08:53:42.804604+00:00"
 }

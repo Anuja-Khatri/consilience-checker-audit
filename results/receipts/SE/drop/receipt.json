@@ -1,0 +1,76 @@
+{
+  "kind": "se-extractor-check/v1",
+  "engine": "consilience-checker-audit extract_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "eval": "drop",
+  "source": {
+    "repo": "https://github.com/openai/simple-evals",
+    "commit": "652c89d0ca9df547706735883097e9537d40dc47",
+    "path": "drop_eval.py (DropEval.__call__ scoring; fuzzy_match; common.ANSWER_PATTERN)"
+  },
+  "contract_author": "model",
+  "contract_sha256": "493753ebe519475b4bd5cbea9743eff075ab39d9c21e477335c26e7c9137826b",
+  "extractor_sha256": "31f6a1d0f3f85cd0f48c84b5e05b576f11b4c7e46679e208dc8971d8c7ae6a98",
+  "probes": [
+    {
+      "label": "clean correct answer",
+      "verdict": "PASS",
+      "kind": "as expected",
+      "response": "The passage says the city is Paris.\nAnswer: Paris",
+      "gold": [
+        "Paris"
+      ],
+      "expected_correct": true,
+      "observed_correct": true
+    },
+    {
+      "label": "clean wrong answer rejected",
+      "verdict": "PASS",
+      "kind": "as expected",
+      "response": "Answer: London",
+      "gold": [
+        "Paris"
+      ],
+      "expected_correct": false,
+      "observed_correct": false
+    },
+    {
+      "label": "no Answer line, whole hedged response contains the gold string",
+      "verdict": "BLOCK",
+      "kind": "leniency: a wrong/invalid answer marked correct",
+      "response": "I am not sure, it might be paris or possibly lyon, hard to tell.",
+      "gold": [
+        "paris"
+      ],
+      "expected_correct": false,
+      "observed_correct": true
+    },
+    {
+      "label": "gold is a substring of a different wrong answer",
+      "verdict": "BLOCK",
+      "kind": "leniency: a wrong/invalid answer marked correct",
+      "response": "Answer: Paris Hilton",
+      "gold": [
+        "Paris"
+      ],
+      "expected_correct": false,
+      "observed_correct": true
+    },
+    {
+      "label": "answer lists every option including the gold one",
+      "verdict": "BLOCK",
+      "kind": "leniency: a wrong/invalid answer marked correct",
+      "response": "Answer: London, Paris, Berlin",
+      "gold": [
+        "Paris"
+      ],
+      "expected_correct": false,
+      "observed_correct": true
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [
+    "SE-KNOWN-02"
+  ],
+  "limits": "Probes are crafted from the task's answer format; they test the extractor's decision logic, not a full run on the eval's dataset. Most findings confirm already-filed issues cited in labels.",
+  "created": "2026-11-27T08:57:51.204742+00:00"
+}

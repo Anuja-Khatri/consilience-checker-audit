@@ -1,0 +1,49 @@
+kind: mleb-grader-contract
+competition_id: nfl-player-contact-detection
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/nfl-player-contact-detection/grade.py
+description: >
+  Metric: Matthews correlation coefficient of the binary 'contact' label.
+  Bounded in [-1, 1], higher is better. The grader checks the column subset,
+  set-equality of contact_id, AND equality of lengths, then sorts by contact_id
+  and grades positionally.
+
+id_column: contact_id
+prediction_columns: [contact]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [-1, 1]
+
+answers:
+  id: ["c0", "c1", "c2", "c3", "c4", "c5"]
+  columns:
+    contact: [0, 1, 0, 1, 1, 0]
+
+leaderboard: [0.95, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10]
+
+reference:
+  kind: exact              # exact labels -> MCC = 1.0
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Prior inspection flagged the id check as "set-equality-only (bounded metric,
+  lower risk)". Checked against the code: the concern does NOT reproduce a BLOCK.
+  Although set(contact_id) equality alone would let a duplicated id through, the
+  grader ALSO enforces len(submission) == len(answers). A duplicate makes the
+  submission longer -> InvalidSubmissionError; a dropped row makes it shorter and
+  also breaks set-equality -> InvalidSubmissionError. So duplicates and
+  wrong-length submissions are both rejected (reject_duplicate_ids and
+  reject_wrong_length PASS). order_invariance PASSES because the grader sorts by
+  contact_id. The metric is bounded in [-1, 1], so no favorable-infinity path
+  exists. Clean grader: HOLDS.

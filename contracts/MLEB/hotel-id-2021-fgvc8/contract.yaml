@@ -1,0 +1,49 @@
+kind: mleb-grader-contract
+competition_id: hotel-id-2021-fgvc8
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/hotel-id-2021-fgvc8/grade.py
+description: >
+  Metric: MAP@5 of the `hotel_id` predictions keyed by `image`. Higher is better;
+  bounded in [0, 1]. Validity (local prepare_for_metric): the submission must carry
+  `image` and `hotel_id`, have the SAME SET of `image`s as the answers, and the SAME
+  LENGTH; both are sorted by `image`. The `hotel_id` field is a space-separated list
+  of up to 5 predicted ids (strings); the answer `hotel_id` is the single true id.
+
+id_column: image
+prediction_columns: [hotel_id]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+answers:
+  id: ["im0", "im1", "im2", "im3", "im4"]
+  columns:
+    hotel_id: ["10", "20", "30", "40", "50"]
+
+leaderboard: [0.95, 0.94, 0.93, 0.92, 0.91, 0.90, 0.89, 0.88, 0.87, 0.86]
+
+reference:
+  kind: exact             # each predicted id equals the true id -> MAP@5 = 1.0 (gold)
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD on every listed check. The grader sorts by `image` and aligns by
+  id, so a row permutation is invariant. A short submission drops an `image`, so the
+  set-equality check rejects it; a duplicated row keeps the id-set intact but trips
+  the length check (len N+1 vs N -> InvalidSubmissionError -> None). MAP@5 is bounded
+  in [0, 1]. `reject_nonfinite` and `range` are not listed: `hotel_id` is a
+  space-separated id string, not a bounded numeric, so a non-finite numeric value is
+  not applicable to the metric. No aggregation group column, so
+  no_free_gold_subset_perfect is not listed. (Single-id answer values are numeric
+  strings, so the duplicate-id check's float() perturbation is well-defined here.)

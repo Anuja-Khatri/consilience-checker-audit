@@ -1,0 +1,50 @@
+kind: mleb-grader-contract
+competition_id: cassava-leaf-disease-classification
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/cassava-leaf-disease-classification/grade.py
+description: >
+  Metric: classification accuracy of the `label` column. Higher is better; bounded
+  in [0, 1]. The 3-line grader delegates entirely to the shared
+  prepare_for_accuracy_metric(target_column="label", id_column="image_id"), which
+  enforces an exact length match, the presence of both columns, and an element-wise
+  id match after sorting by `image_id`. No range check (label is a categorical
+  class 0-4).
+
+id_column: image_id
+prediction_columns: [label]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+answers:
+  id: ["img0", "img1", "img2", "img3", "img4"]
+  columns:
+    label: [0, 1, 2, 3, 4]
+
+leaderboard: [0.910, 0.905, 0.900, 0.895, 0.890, 0.885, 0.880, 0.875, 0.870, 0.865]
+
+reference:
+  kind: exact             # a copy of the answers scores accuracy = 1.0 (gold)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD on every listed check. Accuracy is bounded in [0, 1]: a single
+  non-finite prediction becomes one wrong label (a benign, non-winning score) or a
+  dtype error swallowed to None - never a favourable infinity. The shared helper's
+  exact length check rejects both the short submission and the duplicated-id
+  submission (both change the row count), and its element-wise id match rejects any
+  id-set mismatch. `range` is not listed: label is a categorical class the grader
+  does not range-check. No aggregation group column, so
+  no_free_gold_subset_perfect is not listed.

@@ -1,0 +1,53 @@
+kind: mleb-grader-contract
+competition_id: bms-molecular-translation
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/bms-molecular-translation/grade.py
+description: >
+  Metric: mean Levenshtein edit distance between the predicted `InChI` string and
+  the true InChI. Lower is better; unbounded above but, being lower-better, no
+  favourable infinity is reachable. Validity (local prepare_for_metric): the
+  submission must have the SAME LENGTH as the answers, carry `image_id` and `InChI`,
+  and the SAME ids after sorting by `image_id`. Predictions are cast to strings.
+
+id_column: image_id
+prediction_columns: [InChI]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]      # edit distance >= 0, unbounded above; lower-better
+
+answers:
+  id: ["img0", "img1", "img2", "img3", "img4"]
+  columns:
+    InChI:
+      - "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
+      - "InChI=1S/CH4/h1H4"
+      - "InChI=1S/H2O/h1H2"
+      - "InChI=1S/C6H6/c1-2-4-6-5-3-1/h1-6H"
+      - "InChI=1S/CO2/c2-1-3"
+
+leaderboard: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+
+reference:
+  kind: exact             # a copy of the answers scores mean distance = 0.0 (gold)
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD on both listed checks. The grader sorts by `image_id` before
+  scoring, so a row permutation is invariant. The length check (first in
+  prepare_for_metric) rejects a short submission. `reject_nonfinite` and `range`
+  are not listed: predictions are InChI strings (cast to str), with no numeric
+  non-finite path and, being lower-better, no infinity-to-gold path.
+  `reject_duplicate_ids` is not listed because the check harness perturbs a
+  duplicated prediction with float() arithmetic, undefined on an InChI string;
+  the grader's length check would in any case reject a duplicated row. No
+  aggregation group column.

@@ -1,0 +1,57 @@
+{
+  "kind": "se-extractor-check/v1",
+  "engine": "consilience-checker-audit extract_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "eval": "mgsm",
+  "source": {
+    "repo": "https://github.com/openai/simple-evals",
+    "commit": "652c89d0ca9df547706735883097e9537d40dc47",
+    "path": "mgsm_eval.py (parse_answer, score_mgsm)"
+  },
+  "contract_author": "model",
+  "contract_sha256": "01ad06d1664d8fdd86d1ec7a50be37b8e91372723bfa458998fc3deebd6360d5",
+  "extractor_sha256": "f11195be8222f3918e3a965998e1040ef09fa5ca58f72dd757e5471f43de2953",
+  "probes": [
+    {
+      "label": "clean correct answer",
+      "verdict": "PASS",
+      "kind": "as expected",
+      "response": "Working it out step by step, the total is 42.\nAnswer: 42",
+      "gold": "42",
+      "expected_correct": true,
+      "observed_correct": true
+    },
+    {
+      "label": "opposite-sign answer credited (minus sign not captured)",
+      "verdict": "BLOCK",
+      "kind": "leniency: a wrong/invalid answer marked correct",
+      "response": "Answer: -7",
+      "gold": "7",
+      "expected_correct": false,
+      "observed_correct": true
+    },
+    {
+      "label": "correct answer marked wrong because a later number wins",
+      "verdict": "BLOCK",
+      "kind": "brittleness: a correct answer marked wrong",
+      "response": "Answer: 42 (which is approximately 40)",
+      "gold": "42",
+      "expected_correct": true,
+      "observed_correct": false
+    },
+    {
+      "label": "a trailing aside number overrides the real answer",
+      "verdict": "BLOCK",
+      "kind": "brittleness: a correct answer marked wrong",
+      "response": "Answer: the result is 15, i.e. about 20 rounded",
+      "gold": "15",
+      "expected_correct": true,
+      "observed_correct": false
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [
+    "SE-KNOWN-04"
+  ],
+  "limits": "Probes are crafted from the task's answer format; they test the extractor's decision logic, not a full run on the eval's dataset. Most findings confirm already-filed issues cited in labels.",
+  "created": "2026-11-27T08:57:51.281233+00:00"
+}

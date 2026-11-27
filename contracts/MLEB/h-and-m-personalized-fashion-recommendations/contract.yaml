@@ -1,0 +1,52 @@
+kind: mleb-grader-contract
+competition_id: h-and-m-personalized-fashion-recommendations
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/h-and-m-personalized-fashion-recommendations/grade.py
+description: >
+  Metric: MAP@12 over article-id recommendations. Bounded [0, 1], higher is
+  better. Validity (from the Kaggle task): a submission has exactly the columns
+  {customer_id, prediction}, where prediction is a space-separated list of up to
+  12 article ids. The prediction is a STRING list, not numeric, so the numeric
+  checks are not applicable.
+
+id_column: customer_id
+prediction_columns: [prediction]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+answers:
+  id: ["c1", "c2", "c3", "c4", "c5"]
+  columns:
+    prediction: ["a1 a2", "b1 b2", "d1", "e1 e2 e3", "f1"]
+
+leaderboard: [0.90, 0.85, 0.80, 0.75, 0.72, 0.70, 0.68, 0.60, 0.50, 0.40]
+
+reference:
+  kind: exact
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Partial coverage. On the two applicable checks the grader HOLDS: it sorts both
+  sides by customer_id (order_invariance PASS), and because it requires the
+  submission customer_id set to be a SUPERSET of the answers, dropping a row
+  makes the superset test fail -> InvalidSubmissionError (reject_wrong_length
+  PASS). Prediction is a string, so reject_nonfinite and range do not apply.
+  LIMITATION (reported honestly, not a demonstrated BLOCK): the flagged
+  duplicate-customer_id gap is real on a code read -- validity is a superset
+  check with no uniqueness or post-filter length check, so a submission with a
+  duplicated customer_id survives, and after sorting the per-row zip inside
+  mean_average_precision_at_k misaligns/truncates the (actual, predicted) pairs.
+  The framework's reject_duplicate_ids check cannot exercise this, because it
+  perturbs the prediction with float(value)+1000, which raises on a string
+  column; so the duplicate path is not listed as a runnable check here.

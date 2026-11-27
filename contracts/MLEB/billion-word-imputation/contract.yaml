@@ -1,0 +1,54 @@
+kind: mleb-grader-contract
+competition_id: billion-word-imputation
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/billion-word-imputation/grade.py
+description: >
+  Metric: mean Levenshtein edit distance between the predicted `sentence` and the
+  true sentence. Lower is better; unbounded above but, being lower-better, no
+  favourable infinity is reachable. Validity (local prepare_for_metric): the
+  submission must carry `id` and `sentence`, have the SAME LENGTH as the answers,
+  and the SAME ids after sorting by `id`. Predictions are strings.
+
+id_column: id
+prediction_columns: [sentence]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]      # edit distance >= 0, unbounded above; lower-better
+
+answers:
+  id: [0, 1, 2, 3, 4]
+  columns:
+    sentence:
+      - "the quick brown fox"
+      - "a stitch in time"
+      - "to be or not to be"
+      - "all that glitters is gold"
+      - "the early bird gets the worm"
+
+leaderboard: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+
+reference:
+  kind: exact             # a copy of the answers scores mean distance = 0.0 (gold)
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD on both listed checks. The grader sorts by `id` before scoring,
+  so a row permutation is invariant. The explicit length check rejects a short
+  submission (len mismatch -> InvalidSubmissionError -> None). `reject_nonfinite`
+  and `range` are not listed: predictions are strings, so a non-finite numeric value
+  does not apply (the metric is a string edit distance, and being lower-better has no
+  infinity-to-gold path). `reject_duplicate_ids` is not listed because the check
+  harness perturbs a duplicated prediction with float() arithmetic, which is
+  undefined on a free-text string column; note that the grader's length check would
+  in any case reject a duplicated row (len becomes N+1 vs N -> InvalidSubmissionError).
+  No aggregation group column.

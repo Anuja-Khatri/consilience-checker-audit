@@ -1,0 +1,57 @@
+{
+  "kind": "se-extractor-check/v1",
+  "engine": "consilience-checker-audit extract_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "eval": "mmlu",
+  "source": {
+    "repo": "https://github.com/openai/simple-evals",
+    "commit": "652c89d0ca9df547706735883097e9537d40dc47",
+    "path": "mmlu_eval.py scoring; common.ANSWER_PATTERN_MULTICHOICE, normalize_response, normalize_extracted_answer"
+  },
+  "contract_author": "model",
+  "contract_sha256": "6db841451ac096f2b8936cc3a6e9ff59e732163f33bb11a5ad5ad48933818363",
+  "extractor_sha256": "d18082a6193b37ebdc3cd62ca3660f4360347d0ac1b98d1850fa94517eb00d01",
+  "probes": [
+    {
+      "label": "clean correct answer",
+      "verdict": "PASS",
+      "kind": "as expected",
+      "response": "Reasoning about the options.\nAnswer: C",
+      "gold": "C",
+      "expected_correct": true,
+      "observed_correct": true
+    },
+    {
+      "label": "revised final answer ignored (first match wins)",
+      "verdict": "BLOCK",
+      "kind": "brittleness: a correct answer marked wrong",
+      "response": "Answer: B\n\nWait, on reflection that is wrong.\nAnswer: C",
+      "gold": "C",
+      "expected_correct": true,
+      "observed_correct": false
+    },
+    {
+      "label": "hedge across two letters credited as the first",
+      "verdict": "BLOCK",
+      "kind": "leniency: a wrong/invalid answer marked correct",
+      "response": "It is hard to decide.\nAnswer: A or B",
+      "gold": "A",
+      "expected_correct": false,
+      "observed_correct": true
+    },
+    {
+      "label": "boxed-latex correct answer still parsed (normalize_response)",
+      "verdict": "PASS",
+      "kind": "as expected",
+      "response": "The answer is **Answer: $\\boxed{D}$**",
+      "gold": "D",
+      "expected_correct": true,
+      "observed_correct": true
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [
+    "SE-KNOWN-03"
+  ],
+  "limits": "Probes are crafted from the task's answer format; they test the extractor's decision logic, not a full run on the eval's dataset. Most findings confirm already-filed issues cited in labels.",
+  "created": "2026-11-27T08:57:51.352963+00:00"
+}

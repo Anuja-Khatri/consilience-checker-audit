@@ -1,0 +1,33 @@
+kind: se-extractor-contract
+eval: mmlu
+contract_author: model
+source:
+  repo: https://github.com/openai/simple-evals
+  commit: 652c89d0ca9df547706735883097e9537d40dc47
+  path: mmlu_eval.py scoring; common.ANSWER_PATTERN_MULTICHOICE, normalize_response, normalize_extracted_answer
+description: >
+  MMLU is multiple choice (A to D). A response is correct only if its stated
+  final choice equals the gold letter. The published scoring normalizes the
+  response, then takes the FIRST "Answer: X" match. Contract view of validity:
+  correctness should track the response's final committed choice, and a hedge
+  across several letters is not a single committed choice.
+
+labels: [SE-KNOWN-03]   # openai/simple-evals issue #33 (repeated Answer pattern)
+
+probes:
+  - label: clean correct answer
+    response: "Reasoning about the options.\nAnswer: C"
+    gold: "C"
+    expect_correct: true
+  - label: revised final answer ignored (first match wins)
+    response: "Answer: B\n\nWait, on reflection that is wrong.\nAnswer: C"
+    gold: "C"
+    expect_correct: true
+  - label: hedge across two letters credited as the first
+    response: "It is hard to decide.\nAnswer: A or B"
+    gold: "A"
+    expect_correct: false
+  - label: boxed-latex correct answer still parsed (normalize_response)
+    response: "The answer is **Answer: $\\boxed{D}$**"
+    gold: "D"
+    expect_correct: true

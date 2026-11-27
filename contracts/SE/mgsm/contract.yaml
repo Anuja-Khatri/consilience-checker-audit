@@ -1,0 +1,34 @@
+kind: se-extractor-contract
+eval: mgsm
+contract_author: model
+source:
+  repo: https://github.com/openai/simple-evals
+  commit: 652c89d0ca9df547706735883097e9537d40dc47
+  path: mgsm_eval.py (parse_answer, score_mgsm)
+description: >
+  MGSM is grade-school math. A response is correct only if its final numeric
+  answer equals the target. The published parser takes the text after the last
+  answer prefix, finds all numbers with the regex \d+\.?\d* (which does not
+  capture a leading minus sign), and returns the LAST number found; score_mgsm
+  compares strings. Contract view of validity: correctness should track the
+  response's intended final answer and its sign.
+
+labels: [SE-KNOWN-04]   # openai/simple-evals issues #129, #132
+
+probes:
+  - label: clean correct answer
+    response: "Working it out step by step, the total is 42.\nAnswer: 42"
+    gold: "42"
+    expect_correct: true
+  - label: opposite-sign answer credited (minus sign not captured)
+    response: "Answer: -7"
+    gold: "7"
+    expect_correct: false
+  - label: correct answer marked wrong because a later number wins
+    response: "Answer: 42 (which is approximately 40)"
+    gold: "42"
+    expect_correct: true
+  - label: a trailing aside number overrides the real answer
+    response: "Answer: the result is 15, i.e. about 20 rounded"
+    gold: "15"
+    expect_correct: true

@@ -1,0 +1,38 @@
+kind: se-extractor-contract
+eval: drop
+contract_author: model
+source:
+  repo: https://github.com/openai/simple-evals
+  commit: 652c89d0ca9df547706735883097e9537d40dc47
+  path: drop_eval.py (DropEval.__call__ scoring; fuzzy_match; common.ANSWER_PATTERN)
+description: >
+  DROP is a reading-comprehension task. A response is correct only if its final
+  answer matches a gold answer. The published scoring extracts the text after an
+  "Answer:" line (or uses the whole response if there is none) and marks it
+  correct when it is a bidirectional substring match (fuzzy_match) to any gold
+  answer. The contract's view of validity: a response is correct only if its
+  stated final answer IS a gold answer, not merely contains or is contained by one.
+
+labels: [SE-KNOWN-02]   # openai/simple-evals issue #133
+
+probes:
+  - label: clean correct answer
+    response: "The passage says the city is Paris.\nAnswer: Paris"
+    gold: ["Paris"]
+    expect_correct: true
+  - label: clean wrong answer rejected
+    response: "Answer: London"
+    gold: ["Paris"]
+    expect_correct: false
+  - label: no Answer line, whole hedged response contains the gold string
+    response: "I am not sure, it might be paris or possibly lyon, hard to tell."
+    gold: ["paris"]
+    expect_correct: false
+  - label: gold is a substring of a different wrong answer
+    response: "Answer: Paris Hilton"
+    gold: ["Paris"]
+    expect_correct: false
+  - label: answer lists every option including the gold one
+    response: "Answer: London, Paris, Berlin"
+    gold: ["Paris"]
+    expect_correct: false

@@ -1,0 +1,60 @@
+kind: mleb-grader-contract
+competition_id: smartphone-decimeter-2022
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/smartphone-decimeter-2022/grade.py
+description: >
+  Metric: mean over trips of mean(50th, 95th percentile) of the per-row haversine
+  distance between predicted and true lat/long. Lower is better. The grader
+  checks the four required columns, the total length, and the per-tripId length,
+  but does NOT sort by UnixTimeMillis. Within a trip, predictions are paired with
+  answers purely by row position (notebook.calc_score -> .to_numpy()).
+
+id_column: tripId
+prediction_columns: [LatitudeDegrees, LongitudeDegrees]
+submission_extra_columns: [UnixTimeMillis]
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+answers:
+  id: ["T1", "T1", "T1", "T2", "T2", "T2"]
+  columns:
+    UnixTimeMillis: [1000, 2000, 3000, 1000, 2000, 3000]
+    LatitudeDegrees: [37.0, 37.3, 37.6, 40.0, 40.3, 40.6]
+    LongitudeDegrees: [-122.0, -122.3, -122.6, -73.0, -73.3, -73.6]
+
+leaderboard: [0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
+
+reference:
+  kind: exact              # exact lat/long -> distance 0 -> score 0 (gold)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: [MLEB-KNOWN-09]
+notes: >
+  BREAKS via order_invariance. The grader never sorts rows within a trip by
+  UnixTimeMillis; notebook.calc_score pairs predictions with answers by row
+  position. Permuting the submission rows (preserving each row's own
+  tripId/time/lat/long) re-orders the rows within a trip relative to the answers,
+  so the positional haversine pairing is scrambled and the score changes. With an
+  exact reference the base score is 0 (gold); after a row permutation the score
+  becomes non-zero -> order_invariance BLOCKS.
+  Direction note: this is an order-DEPENDENCE finding (score changes under a
+  permutation), which is distinct from the known 0.0-path quirk of issue #93
+  (MLEB-KNOWN-09) but is in the same competition and the same "order_dependence /
+  metric_logic_gap" family; per LABELS.yaml guidance it is tagged to
+  MLEB-KNOWN-09 and NOT claimed as a wholly new public issue. Scrambling order
+  makes the score WORSE (lower-better distance), so it is an integrity/alignment
+  defect rather than a direct medal-stealing exploit.
+  reject_nonfinite PASSES (lower-better distance; NaN/inf lat -> NaN score, no
+  medal). reject_wrong_length and reject_duplicate_ids PASS via the total- and
+  per-trip length checks.

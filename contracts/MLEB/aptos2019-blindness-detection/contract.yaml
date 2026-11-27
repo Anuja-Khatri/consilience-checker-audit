@@ -1,0 +1,51 @@
+kind: mleb-grader-contract
+competition_id: aptos2019-blindness-detection
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/aptos2019-blindness-detection/grade.py
+description: >
+  Metric: quadratic-weighted Cohen kappa of the `diagnosis` label. Higher is
+  better; the metric is bounded in [-1, 1]. Validity (local prepare_for_grading):
+  the submission must carry the `diagnosis` column, be non-empty, and have the
+  same set of `id_code`s as the answers; both sides are then sorted by `id_code`
+  and graded element-wise. There is no length check and no range check (diagnosis
+  is a categorical label 0-4, not a probability).
+
+id_column: id_code
+prediction_columns: [diagnosis]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [-1, 1]
+
+answers:
+  id: ["a0", "a1", "a2", "a3", "a4"]
+  columns:
+    diagnosis: [0, 1, 2, 3, 4]
+
+leaderboard: [0.999, 0.998, 0.997, 0.996, 0.995, 0.994, 0.993, 0.992, 0.991, 0.990]
+
+reference:
+  kind: exact             # a copy of the answers scores kappa = 1.0 (gold)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD on every listed check. The metric is bounded in [-1, 1], so a
+  non-finite prediction cannot produce a favourable infinity (cohen_kappa_score
+  either rejects the NaN/inf label or yields a bounded, non-winning score).
+  Duplicate / short submissions change the id-set or the row count: the set-equality
+  check rejects a short submission, and a duplicated row leaves the id-set intact
+  but makes the sorted y_pred longer than y_true, so cohen_kappa_score raises and
+  the Grader swallows it to None. `range` is not listed: diagnosis is a categorical
+  label, not a bounded numeric the grader validates. `no_free_gold_subset_perfect`
+  is not listed: there is no aggregation group column.

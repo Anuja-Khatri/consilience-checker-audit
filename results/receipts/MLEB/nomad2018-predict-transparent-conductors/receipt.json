@@ -8,6 +8,13 @@
     "grade_path": "mlebench/competitions/nomad2018-predict-transparent-conductors/grade.py"
   },
   "contract_author": "model",
+  "id_column": "id",
+  "prediction_columns": [
+    "formation_energy_ev_natom",
+    "bandgap_energy_ev"
+  ],
+  "group_column": null,
+  "prediction_range": null,
   "contract_sha256": "56a84f1470d27d38fd99a42bfa023e589d9d638e40ff5c7bc68d2fec80dcc1a7",
   "grade_file_sha256": "11c1e5df47d29f5eb4ebe205990c71dd59819510ad25972bd9a506a0392ac50b",
   "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
@@ -105,5 +112,5 @@
   "verdict": "BREAKS",
   "labels": [],
   "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
-  "created": "2026-11-27T08:48:21.112339+00:00"
+  "created": "2026-11-27T08:53:44.008330+00:00"
 }

@@ -1,0 +1,209 @@
+kind: mleb-grader-contract
+competition_id: freesound-audio-tagging-2019
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/freesound-audio-tagging-2019/grade.py
+description: >
+  Metric: overall lwlrap (label-ranking average precision) over 80 class
+  columns keyed by `fname`. Higher is better; bounded in [0, 1]. Validity
+  (local prepare_for_metric): the submission must have the SAME LENGTH as the
+  answers, its first column must be `fname`, its remaining columns must equal
+  the 80 CLASS_NAMES exactly and in order, and the same `fname`s after sorting.
+  Values are coerced with pd.to_numeric (non-numeric -> InvalidSubmissionError).
+
+id_column: fname
+prediction_columns:
+  - "Accelerating_and_revving_and_vroom"
+  - "Accordion"
+  - "Acoustic_guitar"
+  - "Applause"
+  - "Bark"
+  - "Bass_drum"
+  - "Bass_guitar"
+  - "Bathtub_(filling_or_washing)"
+  - "Bicycle_bell"
+  - "Burping_and_eructation"
+  - "Bus"
+  - "Buzz"
+  - "Car_passing_by"
+  - "Cheering"
+  - "Chewing_and_mastication"
+  - "Child_speech_and_kid_speaking"
+  - "Chink_and_clink"
+  - "Chirp_and_tweet"
+  - "Church_bell"
+  - "Clapping"
+  - "Computer_keyboard"
+  - "Crackle"
+  - "Cricket"
+  - "Crowd"
+  - "Cupboard_open_or_close"
+  - "Cutlery_and_silverware"
+  - "Dishes_and_pots_and_pans"
+  - "Drawer_open_or_close"
+  - "Drip"
+  - "Electric_guitar"
+  - "Fart"
+  - "Female_singing"
+  - "Female_speech_and_woman_speaking"
+  - "Fill_(with_liquid)"
+  - "Finger_snapping"
+  - "Frying_(food)"
+  - "Gasp"
+  - "Glockenspiel"
+  - "Gong"
+  - "Gurgling"
+  - "Harmonica"
+  - "Hi-hat"
+  - "Hiss"
+  - "Keys_jangling"
+  - "Knock"
+  - "Male_singing"
+  - "Male_speech_and_man_speaking"
+  - "Marimba_and_xylophone"
+  - "Mechanical_fan"
+  - "Meow"
+  - "Microwave_oven"
+  - "Motorcycle"
+  - "Printer"
+  - "Purr"
+  - "Race_car_and_auto_racing"
+  - "Raindrop"
+  - "Run"
+  - "Scissors"
+  - "Screaming"
+  - "Shatter"
+  - "Sigh"
+  - "Sink_(filling_or_washing)"
+  - "Skateboard"
+  - "Slam"
+  - "Sneeze"
+  - "Squeak"
+  - "Stream"
+  - "Strum"
+  - "Tap"
+  - "Tick-tock"
+  - "Toilet_flush"
+  - "Traffic_noise_and_roadway_noise"
+  - "Trickle_and_dribble"
+  - "Walk_and_footsteps"
+  - "Water_tap_and_faucet"
+  - "Waves_and_surf"
+  - "Whispering"
+  - "Writing"
+  - "Yell"
+  - "Zipper_(clothing)"
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+answers:
+  id: ["f0", "f1", "f2", "f3", "f4", "f5"]
+  columns:
+    "Accelerating_and_revving_and_vroom": [1, 0, 0, 0, 0, 0]
+    "Accordion": [0, 1, 0, 0, 0, 0]
+    "Acoustic_guitar": [0, 0, 1, 0, 0, 0]
+    "Applause": [0, 0, 0, 1, 0, 0]
+    "Bark": [0, 0, 0, 0, 1, 0]
+    "Bass_drum": [0, 0, 0, 0, 0, 1]
+    "Bass_guitar": [0, 0, 0, 0, 0, 0]
+    "Bathtub_(filling_or_washing)": [0, 0, 0, 0, 0, 0]
+    "Bicycle_bell": [0, 0, 0, 0, 0, 0]
+    "Burping_and_eructation": [0, 0, 0, 0, 0, 0]
+    "Bus": [0, 0, 0, 0, 0, 0]
+    "Buzz": [0, 0, 0, 0, 0, 0]
+    "Car_passing_by": [0, 0, 0, 0, 0, 0]
+    "Cheering": [0, 0, 0, 0, 0, 0]
+    "Chewing_and_mastication": [0, 0, 0, 0, 0, 0]
+    "Child_speech_and_kid_speaking": [0, 0, 0, 0, 0, 0]
+    "Chink_and_clink": [0, 0, 0, 0, 0, 0]
+    "Chirp_and_tweet": [0, 0, 0, 0, 0, 0]
+    "Church_bell": [0, 0, 0, 0, 0, 0]
+    "Clapping": [0, 0, 0, 0, 0, 0]
+    "Computer_keyboard": [0, 0, 0, 0, 0, 0]
+    "Crackle": [0, 0, 0, 0, 0, 0]
+    "Cricket": [0, 0, 0, 0, 0, 0]
+    "Crowd": [0, 0, 0, 0, 0, 0]
+    "Cupboard_open_or_close": [0, 0, 0, 0, 0, 0]
+    "Cutlery_and_silverware": [0, 0, 0, 0, 0, 0]
+    "Dishes_and_pots_and_pans": [0, 0, 0, 0, 0, 0]
+    "Drawer_open_or_close": [0, 0, 0, 0, 0, 0]
+    "Drip": [0, 0, 0, 0, 0, 0]
+    "Electric_guitar": [0, 0, 0, 0, 0, 0]
+    "Fart": [0, 0, 0, 0, 0, 0]
+    "Female_singing": [0, 0, 0, 0, 0, 0]
+    "Female_speech_and_woman_speaking": [0, 0, 0, 0, 0, 0]
+    "Fill_(with_liquid)": [0, 0, 0, 0, 0, 0]
+    "Finger_snapping": [0, 0, 0, 0, 0, 0]
+    "Frying_(food)": [0, 0, 0, 0, 0, 0]
+    "Gasp": [0, 0, 0, 0, 0, 0]
+    "Glockenspiel": [0, 0, 0, 0, 0, 0]
+    "Gong": [0, 0, 0, 0, 0, 0]
+    "Gurgling": [0, 0, 0, 0, 0, 0]
+    "Harmonica": [0, 0, 0, 0, 0, 0]
+    "Hi-hat": [0, 0, 0, 0, 0, 0]
+    "Hiss": [0, 0, 0, 0, 0, 0]
+    "Keys_jangling": [0, 0, 0, 0, 0, 0]
+    "Knock": [0, 0, 0, 0, 0, 0]
+    "Male_singing": [0, 0, 0, 0, 0, 0]
+    "Male_speech_and_man_speaking": [0, 0, 0, 0, 0, 0]
+    "Marimba_and_xylophone": [0, 0, 0, 0, 0, 0]
+    "Mechanical_fan": [0, 0, 0, 0, 0, 0]
+    "Meow": [0, 0, 0, 0, 0, 0]
+    "Microwave_oven": [0, 0, 0, 0, 0, 0]
+    "Motorcycle": [0, 0, 0, 0, 0, 0]
+    "Printer": [0, 0, 0, 0, 0, 0]
+    "Purr": [0, 0, 0, 0, 0, 0]
+    "Race_car_and_auto_racing": [0, 0, 0, 0, 0, 0]
+    "Raindrop": [0, 0, 0, 0, 0, 0]
+    "Run": [0, 0, 0, 0, 0, 0]
+    "Scissors": [0, 0, 0, 0, 0, 0]
+    "Screaming": [0, 0, 0, 0, 0, 0]
+    "Shatter": [0, 0, 0, 0, 0, 0]
+    "Sigh": [0, 0, 0, 0, 0, 0]
+    "Sink_(filling_or_washing)": [0, 0, 0, 0, 0, 0]
+    "Skateboard": [0, 0, 0, 0, 0, 0]
+    "Slam": [0, 0, 0, 0, 0, 0]
+    "Sneeze": [0, 0, 0, 0, 0, 0]
+    "Squeak": [0, 0, 0, 0, 0, 0]
+    "Stream": [0, 0, 0, 0, 0, 0]
+    "Strum": [0, 0, 0, 0, 0, 0]
+    "Tap": [0, 0, 0, 0, 0, 0]
+    "Tick-tock": [0, 0, 0, 0, 0, 0]
+    "Toilet_flush": [0, 0, 0, 0, 0, 0]
+    "Traffic_noise_and_roadway_noise": [0, 0, 0, 0, 0, 0]
+    "Trickle_and_dribble": [0, 0, 0, 0, 0, 0]
+    "Walk_and_footsteps": [0, 0, 0, 0, 0, 0]
+    "Water_tap_and_faucet": [0, 0, 0, 0, 0, 0]
+    "Waves_and_surf": [0, 0, 0, 0, 0, 0]
+    "Whispering": [0, 0, 0, 0, 0, 0]
+    "Writing": [0, 0, 0, 0, 0, 0]
+    "Yell": [0, 0, 0, 0, 0, 0]
+    "Zipper_(clothing)": [0, 0, 0, 0, 0, 0]
+
+leaderboard: [0.95, 0.94, 0.93, 0.92, 0.91, 0.90, 0.89, 0.88, 0.87, 0.86]
+
+reference:
+  kind: exact             # predictions equal the binary truth -> lwlrap = 1.0 (gold)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Expected to HOLD on every listed check. lwlrap is bounded in [0, 1]. sklearn's
+  label_ranking_average_precision_score validates its inputs with check_array,
+  which rejects NaN/+-inf (ValueError -> swallowed to None), so reject_nonfinite
+  holds. The explicit length check rejects the short submission and the
+  duplicated-id submission (both change the row count). The grader sorts by
+  `fname`, so a row permutation is invariant. `range` is not listed: lwlrap is a
+  ranking metric with no [0,1] bound enforced on the raw scores. No aggregation
+  group column, so no_free_gold_subset_perfect is not listed.

@@ -1,0 +1,56 @@
+kind: mleb-grader-contract
+competition_id: osic-pulmonary-fibrosis-progression
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/osic-pulmonary-fibrosis-progression/grade.py
+description: >
+  Metric: modified Laplace log-likelihood, higher is better. The grader checks
+  that every submitted Patient_Week exists in the answers (submission is a subset
+  of answers), but does NOT check the reverse and has NO length check. It grades
+  the mean over ONLY the submitted rows, so omitting poorly predicted rows raises
+  the mean (known issue #153).
+
+id_column: Patient_Week
+prediction_columns: [FVC]
+submission_extra_columns: [Confidence]
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [null, null]
+
+answers:
+  id: ["P1_1", "P1_2", "P1_3", "P2_1", "P2_2", "P2_3"]
+  columns:
+    FVC: [2000.0, 2100.0, 2200.0, 2500.0, 2600.0, 2700.0]
+    Confidence: [70, 70, 70, 70, 70, 70]   # unused in answers; present so the reference carries it
+    Patient: ["P1", "P1", "P1", "P2", "P2", "P2"]
+
+leaderboard: [-4.2, -4.6, -5.0, -5.5, -6.0, -6.5, -7.0, -7.5, -8.0, -8.5]
+
+reference:
+  kind: exact              # exact FVC, Confidence 70 -> per-row LL = -log(sqrt(2)*70) ~= -4.595
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: [MLEB-KNOWN-07]
+notes: >
+  BREAKS via reject_wrong_length, modelling known issue #153 (MLEB-KNOWN-07):
+  the grader averages the Laplace log-likelihood over ONLY the submitted rows and
+  never requires the submission to cover every answer Patient_Week, and has no
+  length check. A submission that drops one (poorly predicted) row is accepted
+  and scores the mean over the remaining rows. With an otherwise-perfect
+  reference the dropped-row submission keeps the same silver-medal score -> the
+  reject_wrong_length check BLOCKS. This is the "partial_submission_averaging"
+  kind; reported as a confirmation of #153, not a new finding.
+  reject_nonfinite PASSES: delta is clipped to 1000 so +/-inf FVC stays finite
+  and loses (higher-better), and a NaN FVC yields a NaN score that wins no medal.
+  order_invariance PASSES (sort by Patient_Week). reject_duplicate_ids PASSES: a
+  duplicated Patient_Week makes the prediction vector longer than the answer
+  vector -> a numpy broadcast error -> swallowed to None.

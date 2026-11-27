@@ -1,0 +1,58 @@
+kind: mleb-grader-contract
+competition_id: hms-harmful-brain-activity-classification
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/hms-harmful-brain-activity-classification/grade.py
+description: >
+  Metric: Kullback-Leibler divergence over six vote-probability columns keyed by
+  `eeg_id`. Lower is better; bounded below by 0. Validity (local prepare_for_metric):
+  the submission must carry `eeg_id` and all six TARGET_COLS, have the SAME LENGTH as
+  the answers, have each row's six probabilities sum to 1 (round to 5 dp), and the
+  SAME id-set. Downstream, kaggle_metric_utilities.verify_valid_probabilities
+  additionally requires every value in [0, 1] and each row-sum ~= 1, and the
+  submission is np.clip-ed to [eps, 1-eps]. The answers are re-normalised to sum 1.
+
+id_column: eeg_id
+prediction_columns: [seizure_vote, lpd_vote, gpd_vote, lrda_vote, grda_vote, other_vote]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+prediction_range: [0, 1]   # verify_valid_probabilities enforces [0,1] on both sides
+
+answers:
+  id: [1, 2, 3, 4, 5]
+  columns:
+    seizure_vote: [1.0, 0.0, 0.0, 0.0, 0.5]
+    lpd_vote:     [0.0, 1.0, 0.0, 0.0, 0.5]
+    gpd_vote:     [0.0, 0.0, 1.0, 0.0, 0.0]
+    lrda_vote:    [0.0, 0.0, 0.0, 1.0, 0.0]
+    grda_vote:    [0.0, 0.0, 0.0, 0.0, 0.0]
+    other_vote:   [0.0, 0.0, 0.0, 0.0, 0.0]
+
+leaderboard: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+reference:
+  kind: exact             # probabilities equal to the answers score KL = 0.0 (gold)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+  - range
+
+labels: []
+notes: >
+  Expected to HOLD on every listed check - one of the best-validated graders in the
+  subset. Each answer row already sums to 1, so the exact reference passes the
+  sum-to-1 check and scores KL = 0. A non-finite or out-of-range value in any
+  probability column breaks that row's sum-to-1 test (round(x,5) != 1) and is
+  rejected to None, so both reject_nonfinite and range hold. The length check rejects
+  the short and duplicated-id submissions; the grader sorts by `eeg_id`, so a row
+  permutation is invariant. No aggregation group column.

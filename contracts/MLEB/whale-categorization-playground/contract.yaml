@@ -1,0 +1,46 @@
+kind: mleb-grader-contract
+competition_id: whale-categorization-playground
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/whale-categorization-playground/grade.py
+description: >
+  Metric: MAP@5 over whale-id predictions. Bounded [0, 1], higher is better.
+  Validity (from the Kaggle task): a submission has exactly the columns
+  {Image, Id}, one row per Image matching the answers, and Id is a
+  space-separated list of up to 5 predicted whale ids. The prediction (Id) is a
+  STRING list, not numeric, so the numeric checks are not applicable.
+
+id_column: Image
+prediction_columns: [Id]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+answers:
+  id: ["a", "b", "c", "d", "e"]
+  columns:
+    Id: ["w1", "w2", "w3", "w4", "w5"]
+
+leaderboard: [0.90, 0.85, 0.80, 0.75, 0.72, 0.70, 0.68, 0.60, 0.50, 0.40]
+
+reference:
+  kind: exact
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD. The grader requires the exact column set {Image, Id}, checks
+  equal row count (reject_wrong_length PASS) and the Image set, then sorts by
+  Image (order_invariance PASS). Prediction is a space-separated string, so
+  reject_nonfinite and range are not applicable, and reject_duplicate_ids
+  (which perturbs predictions numerically) cannot be built on a string column;
+  moreover the exact-column-set and row-count checks would reject a duplicate
+  row anyway.
