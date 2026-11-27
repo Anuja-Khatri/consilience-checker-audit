@@ -26,6 +26,6 @@ simple_evals_leg:
   - simple-evals/mgsm
   - simple-evals/mmlu
 findings_classified:
-  total_confirmed: 0
-  new: 0
-  confirmation_of_known: 0
+  total_confirmed: 10
+  new: 3
+  confirmation_of_known: 7

@@ -1,0 +1,151 @@
+# Curated findings. Each is a confirmed BLOCK (independent second way agreed),
+# classified by hand as new or a confirmation of a known public issue, with a
+# severity and a proposed fix. The receipts are the mechanical evidence; this
+# file is the human judgement on top of them. "new" means we did not find it in
+# the target's public issue tracker; the trackers are large and we did not
+# search them exhaustively, so "new" is "candidate-new", stated conservatively.
+
+findings:
+  # -------- MLE-bench (deterministic graders) --------
+  - id: F-MLEB-1
+    checker: champs-scalar-coupling
+    leg: mle-bench
+    check: no_free_gold_subset_perfect
+    status: new
+    labels: []
+    severity: high
+    summary: >
+      The metric is the mean over coupling types of log(MAE_type). A submission that
+      predicts one coupling type exactly and garbage elsewhere sends that type's MAE to
+      zero, so log(MAE) is -inf and the mean is -inf, which wins a gold medal. A trivially
+      partial submission beats every real one.
+    receipt: results/receipts/MLEB/champs-scalar-coupling/receipt.json
+    fix: >
+      Clamp each per-type MAE below at a small epsilon before the log, or reject a
+      non-finite aggregate score in the grader before ranking.
+    distinct_from: "The known duplicate-id issue #156 (MLEB-KNOWN-06) is a different mechanism on the same grader."
+
+  - id: F-MLEB-2
+    checker: champs-scalar-coupling
+    leg: mle-bench
+    check: reject_duplicate_ids
+    status: known
+    labels: [MLEB-KNOWN-06]
+    severity: medium
+    summary: >
+      The grader checks only set(submission ids) == set(answer ids), so a duplicated id
+      passes and the merge on id inflates that id's rows, changing the score.
+    receipt: results/receipts/MLEB/champs-scalar-coupling/receipt.json
+    fix: "Reject a submission with duplicate ids (check uniqueness, not just set equality)."
+
+  - id: F-MLEB-3
+    checker: nomad2018-predict-transparent-conductors
+    leg: mle-bench
+    check: order_invariance
+    status: new
+    labels: []
+    severity: high
+    summary: >
+      The grader reads the two prediction columns by row position and ignores the id
+      column, so the same submission in a different row order scores differently.
+    receipt: results/receipts/MLEB/nomad2018-predict-transparent-conductors/receipt.json
+    fix: "Merge the submission and answers on the id column before computing RMSLE."
+
+  - id: F-MLEB-4
+    checker: osic-pulmonary-fibrosis-progression
+    leg: mle-bench
+    check: reject_wrong_length
+    status: known
+    labels: [MLEB-KNOWN-07]
+    severity: medium
+    summary: >
+      The grader averages the Laplace log-likelihood over only the submitted rows and
+      does not check length, so omitting rows is accepted and keeps the medal.
+    receipt: results/receipts/MLEB/osic-pulmonary-fibrosis-progression/receipt.json
+    fix: "Require the submission to cover every answer id (length and id-set check)."
+
+  - id: F-MLEB-5
+    checker: jigsaw-unintended-bias-in-toxicity-classification
+    leg: mle-bench
+    check: reject_nonfinite, range
+    status: known
+    labels: [MLEB-KNOWN-05]
+    severity: medium
+    summary: >
+      Predictions are thresholded at 0.5 and never validated as finite probabilities in
+      [0,1], so an out-of-range value (1001) or +inf thresholds to 1 just like a legitimate
+      0.9, preserving the perfect classification and the gold medal. This is a concrete
+      medal-winning consequence of the 0.5-thresholding behaviour in issue #157.
+    receipt: results/receipts/MLEB/jigsaw-unintended-bias-in-toxicity-classification/receipt.json
+    fix: "Validate predictions are finite and in [0,1] before thresholding; grade the ranking (AUROC) rather than a 0.5 cut."
+
+  - id: F-MLEB-6
+    checker: smartphone-decimeter-2022
+    leg: mle-bench
+    check: order_invariance
+    status: known
+    labels: [MLEB-KNOWN-09]
+    severity: medium
+    summary: >
+      The grader pairs predictions to answers by row position for the haversine distance
+      and does not sort within-trip rows by time, so a within-trip permutation changes the
+      score. Same competition and order-dependence family as issue #93.
+    receipt: results/receipts/MLEB/smartphone-decimeter-2022/receipt.json
+    fix: "Sort both submission and answers by (trip, UnixTimeMillis) before pairing."
+
+  - id: F-MLEB-7
+    checker: uw-madison-gi-tract-image-segmentation
+    leg: mle-bench
+    check: order_invariance, reject_wrong_length
+    status: new
+    labels: []
+    severity: high
+    summary: >
+      The Dice term pairs submission and answer masks by row position with zip and does
+      not check length or the id set, so (1) a row permutation changes the score, and
+      (2) a submission missing its last rows is silently truncated by zip and, being
+      perfect on the rows it provides, wins a gold medal.
+    receipt: results/receipts/MLEB/uw-madison-gi-tract-image-segmentation/receipt.json
+    fix: "Align masks by id (merge, not zip) and require the submission to cover every answer id."
+
+  # -------- simple-evals (model-judge answer extractors) --------
+  - id: F-SE-1
+    checker: simple-evals/drop
+    leg: simple-evals
+    check: fuzzy_match bidirectional substring
+    status: known
+    labels: [SE-KNOWN-02]
+    severity: medium
+    summary: >
+      fuzzy_match marks an answer correct when the gold string is a substring of the
+      response or vice versa, and when there is no "Answer:" line the whole response is
+      used. A hedged non-answer that merely contains the gold string scores correct.
+    receipt: results/receipts/SE/drop/receipt.json
+    fix: "Require an explicit final-answer line and an exact (number-normalised) match, not a substring."
+
+  - id: F-SE-2
+    checker: simple-evals/mgsm
+    leg: simple-evals
+    check: parse_answer sign/locale and last-number-wins
+    status: known
+    labels: [SE-KNOWN-04]
+    severity: medium
+    summary: >
+      The number regex does not capture a leading minus, so an opposite-sign answer is
+      credited; and parse_answer returns the last number found, so a trailing aside number
+      overrides the real answer.
+    receipt: results/receipts/SE/mgsm/receipt.json
+    fix: "Capture the sign; take the answer immediately after the answer prefix, not the last number."
+
+  - id: F-SE-3
+    checker: simple-evals/mmlu
+    leg: simple-evals
+    check: first-match extraction and hedge
+    status: known
+    labels: [SE-KNOWN-03]
+    severity: medium
+    summary: >
+      Extraction takes the first "Answer: X" match, so a revised final answer is ignored,
+      and a hedge across two letters is credited as the first one.
+    receipt: results/receipts/SE/mmlu/receipt.json
+    fix: "Take the last answer line; treat a multi-letter hedge as no single committed choice."
