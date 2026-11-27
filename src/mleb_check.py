@@ -207,7 +207,11 @@ def check_reject_duplicate_ids(ctx):
     # change the score (the merge-inflation behaviour behind issue #156).
     dup_row = ref.iloc[[0]].copy()
     for col in contract["prediction_columns"]:
-        dup_row.loc[dup_row.index[0], col] = float(dup_row.iloc[0][col]) + 1000.0
+        try:
+            dup_row.loc[dup_row.index[0], col] = float(dup_row.iloc[0][col]) + 1000.0
+        except (TypeError, ValueError):
+            pass  # non-numeric prediction (e.g. an id list or RLE string): duplicate the row as-is;
+                  # the duplicated id itself is the attack, regardless of the value.
     sub = pd.concat([ref, dup_row], ignore_index=True)
     score = grader(sub, answers)
     medal = _medal(grader, score, lb)
