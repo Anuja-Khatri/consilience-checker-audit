@@ -1,0 +1,68 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "whale-categorization-playground",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/whale-categorization-playground/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "Image",
+  "prediction_columns": [
+    "Id"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "04aceacbdc1bfa5a080b218e469d7129c9fbdc907366acbeb7b6cb158effe134",
+  "grade_file_sha256": "5a5d5f36fa5aa4099cfc2772d82a7af2712a7870765ca9cdf7553db7e60b9574",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "Image": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ],
+    "Id": [
+      "w1",
+      "w2",
+      "w3",
+      "w4",
+      "w5"
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.9,
+    0.85,
+    0.8,
+    0.75,
+    0.72,
+    0.7,
+    0.68,
+    0.6,
+    0.5,
+    0.4
+  ],
+  "reference_score": 1.0,
+  "checks": [
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (1.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (4 of 5 rows) rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:14.237260+00:00"
+}

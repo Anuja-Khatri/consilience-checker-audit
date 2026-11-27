@@ -1,0 +1,56 @@
+kind: mleb-grader-contract
+competition_id: spooky-author-identification
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/spooky-author-identification/grade.py
+description: >
+  Metric: multiclass log loss over three author classes (EAP, HPL, MWS). Lower is
+  better, bounded below by 0. Validity (from the Kaggle task): a submission has an
+  `id` column and the three class-probability columns, one row per id. The grader
+  checks the exact shape (n, 4), that each row sums to 1 (isclose, 1e-6), that
+  every probability is in [0, 1], then aligns by id via
+  one_hot_dfs_to_log_loss_inputs (column superset, sort by id, id equality).
+
+id_column: id
+prediction_columns: [EAP, HPL, MWS]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+prediction_range: [0, 1]   # enforced (probabilities in [0, 1] and summing to 1)
+
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    EAP: [1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+    HPL: [0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+    MWS: [0.0, 0.0, 1.0, 0.0, 0.0, 1.0]
+
+leaderboard: [0.10, 0.20, 0.35, 0.50, 0.65, 0.80, 0.95, 1.10, 1.30, 1.50]
+
+reference:
+  kind: exact            # one-hot == true one-hot; log_loss clips -> small finite score
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+  - range
+
+labels: []
+notes: >
+  Expected to HOLD on every check. The grader rejects non-finite or out-of-range
+  probabilities: a NaN/inf breaks the row-sum (isclose) and the [0, 1] checks, and
+  the out-of-range value 1001 fails the <= 1 check -> InvalidSubmissionError ->
+  None. The fixed shape (n, 4) rejects short and duplicate-id submissions (length
+  change). Alignment is by id (sort + elementwise check). log_loss clips
+  predictions, so the one-hot reference scores a small finite value. Among the
+  best-validated graders (shape + sum-to-1 + range + id checks). Validated: the
+  one-hot reference log-loss rounds to reference_score 0.0 (a small clipped value),
+  and every listed check PASSes.

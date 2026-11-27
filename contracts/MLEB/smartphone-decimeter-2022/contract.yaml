@@ -41,7 +41,17 @@ checks:
 
 labels: [MLEB-KNOWN-09]
 notes: >
-  BREAKS via order_invariance. The grader never sorts rows within a trip by
+  HARNESS LIMITATION - NOT RUNNABLE BY THIS CHECKER. grade.py line 6 does a
+  package-relative import `from .notebook import calc_score`, and the checker's
+  _load_grade_fn loads grade.py as a top-level module with no parent package, so
+  importing it raises ImportError ("attempted relative import with no known
+  parent package") before any synthetic submission is graded. It is the only one
+  of the seven target graders that imports a sibling module this way. The
+  analysis below is from reading the code only; no receipt could be produced.
+  Fixing it would require changing the checker's loader, which is out of scope.
+
+  EXPECTED (by code reading) BREAKS via order_invariance. The grader never sorts
+  rows within a trip by
   UnixTimeMillis; notebook.calc_score pairs predictions with answers by row
   position. Permuting the submission rows (preserving each row's own
   tripId/time/lat/long) re-orders the rows within a trip relative to the answers,

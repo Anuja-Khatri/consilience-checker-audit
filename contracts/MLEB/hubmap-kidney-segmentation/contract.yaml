@@ -1,0 +1,55 @@
+kind: mleb-grader-contract
+competition_id: hubmap-kidney-segmentation
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/hubmap-kidney-segmentation/grade.py
+description: >
+  Metric: mean Dice coefficient over images. Higher is better, bounded [0, 1].
+  Validity (from the Kaggle task): a submission has an `id` column matching the
+  answers' ids and a `predicted` run-length-encoding (RLE) string per id. The
+  grader checks the id column, the predicted column, equal length and id-set
+  equality, then sorts by id. `both_empty_value=1.0` avoids a NaN Dice.
+
+id_column: id
+prediction_columns: [predicted]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+# answers carries the grader's answer columns (encoding/width_pixels/height_pixels)
+# AND a `predicted` column so the reference builder can select the submission
+# schema (id + predicted). The grader ignores the extra `predicted` in answers.
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    encoding: ["1 2", "1 2", "1 2", "1 2", "1 2", "1 2"]
+    width_pixels: [4, 4, 4, 4, 4, 4]
+    height_pixels: [4, 4, 4, 4, 4, 4]
+    predicted: ["1 2", "1 2", "1 2", "1 2", "1 2", "1 2"]
+
+leaderboard: [0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50]
+
+reference:
+  kind: exact            # predicted == encoding -> Dice 1.0 per row -> score 1.0
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD. The grader aligns by id (sort + set-equality + length check),
+  so order_invariance and reject_wrong_length hold, and the Dice metric is bounded
+  [0, 1] so there is no finiteness gap. Two checks are intentionally NOT listed
+  because they are not applicable to a string RLE prediction column: (1)
+  reject_nonfinite injects a float inf, which pandas refuses to assign to the
+  string-dtype `predicted` column (TypeError) -- and in any case a NaN is filled
+  to "" and an inf would raise AssertionError in rle_decode -> None, winning no
+  medal; (2) reject_duplicate_ids casts the prediction to float (predicted + 1000),
+  which raises ValueError on an RLE string. The grader's length + id-set checks
+  reject duplicate-id rows anyway.

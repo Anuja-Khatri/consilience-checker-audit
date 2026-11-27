@@ -25,7 +25,7 @@ metric:
 answers:
   id: ["img0", "img1", "img2", "img3", "img4"]
   columns:
-    label: [0, 1, 2, 3, 4]
+    label: [0.0, 1.0, 2.0, 3.0, 4.0]   # float so the non-finite check can set NaN/inf (a CSV label parses to float)
 
 leaderboard: [0.910, 0.905, 0.900, 0.895, 0.890, 0.885, 0.880, 0.875, 0.870, 0.865]
 

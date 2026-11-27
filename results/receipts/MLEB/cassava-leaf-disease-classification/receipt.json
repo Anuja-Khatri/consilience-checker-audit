@@ -1,0 +1,80 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "cassava-leaf-disease-classification",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/cassava-leaf-disease-classification/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "image_id",
+  "prediction_columns": [
+    "label"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "b8a47f5fefd4090496a380cc2ca81237dcb33ea8394d4a688e88e73614baf3c0",
+  "grade_file_sha256": "67b23b303c9cd9cf65de313491d38fbf4a745f324bd0764a3e6340df510d4cae",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "image_id": [
+      "img0",
+      "img1",
+      "img2",
+      "img3",
+      "img4"
+    ],
+    "label": [
+      0.0,
+      1.0,
+      2.0,
+      3.0,
+      4.0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.91,
+    0.905,
+    0.9,
+    0.895,
+    0.89,
+    0.885,
+    0.88,
+    0.875,
+    0.87,
+    0.865
+  ],
+  "reference_score": 1.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (1.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (4 of 5 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:08:49.561090+00:00"
+}

@@ -1,0 +1,174 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "smartphone-decimeter-2022",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/smartphone-decimeter-2022/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "tripId",
+  "prediction_columns": [
+    "LatitudeDegrees",
+    "LongitudeDegrees"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "055d9e7d1b32f982eab08c65decb5ac2b217e66bd3a0216f262ecaa153b85fd6",
+  "grade_file_sha256": "1c8e6b70737610aa0ae965e27771cbd615d477e6c66fb4f8f2d79dc8ebae00b0",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "tripId": [
+      "T1",
+      "T1",
+      "T1",
+      "T2",
+      "T2",
+      "T2"
+    ],
+    "UnixTimeMillis": [
+      1000,
+      2000,
+      3000,
+      1000,
+      2000,
+      3000
+    ],
+    "LatitudeDegrees": [
+      37.0,
+      37.3,
+      37.6,
+      40.0,
+      40.3,
+      40.6
+    ],
+    "LongitudeDegrees": [
+      -122.0,
+      -122.3,
+      -122.6,
+      -73.0,
+      -73.3,
+      -73.6
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.5,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    9.0
+  ],
+  "reference_score": 0.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=np.float64(nan), medal=none; +inf: score=np.float64(nan), medal=none; -inf: score=np.float64(nan), medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "BLOCK",
+      "detail": "reference score 0.0 changed to 63618.88673 under a row permutation",
+      "counterexample": {
+        "attack": "same submission, rows shuffled (id->value preserved)",
+        "submission": {
+          "tripId": [
+            "T1",
+            "T1",
+            "T2",
+            "T1",
+            "T2",
+            "T2"
+          ],
+          "LatitudeDegrees": [
+            37.6,
+            37.3,
+            40.3,
+            37.0,
+            40.0,
+            40.6
+          ],
+          "LongitudeDegrees": [
+            -122.6,
+            -122.3,
+            -73.3,
+            -122.0,
+            -73.0,
+            -73.6
+          ],
+          "UnixTimeMillis": [
+            3000,
+            2000,
+            2000,
+            1000,
+            1000,
+            3000
+          ]
+        },
+        "reference_submission": {
+          "tripId": [
+            "T1",
+            "T1",
+            "T1",
+            "T2",
+            "T2",
+            "T2"
+          ],
+          "LatitudeDegrees": [
+            37.0,
+            37.3,
+            37.6,
+            40.0,
+            40.3,
+            40.6
+          ],
+          "LongitudeDegrees": [
+            -122.0,
+            -122.3,
+            -122.6,
+            -73.0,
+            -73.3,
+            -73.6
+          ],
+          "UnixTimeMillis": [
+            1000,
+            2000,
+            3000,
+            1000,
+            2000,
+            3000
+          ]
+        },
+        "reference_score": 0.0,
+        "observed_score": 63618.88673,
+        "observed_medal": "none"
+      }
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [
+    "MLEB-KNOWN-09"
+  ],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:06.665138+00:00"
+}

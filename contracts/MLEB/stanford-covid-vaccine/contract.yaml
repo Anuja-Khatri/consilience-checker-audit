@@ -1,0 +1,60 @@
+kind: mleb-grader-contract
+competition_id: stanford-covid-vaccine
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/stanford-covid-vaccine/grade.py
+description: >
+  Metric: mean over three targets (reactivity, deg_Mg_pH10, deg_Mg_50C) of the
+  RMSE on the 'keep'-masked rows. Lower is better. The grader checks total
+  length, the required submission/answer column supersets, sorts by id_seqpos,
+  checks id_seqpos matches after the sort, and applies the 'keep' mask. There is
+  NO NaN/inf guard on the numeric predictions.
+
+id_column: id_seqpos
+prediction_columns: [reactivity, deg_Mg_pH10, deg_Mg_50C]
+submission_extra_columns: [deg_pH10, deg_50C]
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]
+
+answers:
+  id: ["id_0", "id_1", "id_2", "id_3", "id_4", "id_5"]
+  columns:
+    reactivity:   [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    deg_Mg_pH10:  [0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    deg_Mg_50C:   [0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    deg_pH10:     [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]   # present in submission, unused for scoring
+    deg_50C:      [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]   # present in submission, unused for scoring
+    keep:         [true, true, true, true, true, true]
+
+leaderboard: [0.005, 0.01, 0.02, 0.03, 0.05, 0.08, 0.10, 0.15, 0.20, 0.30]
+
+reference:
+  kind: offset
+  offset: 0.01             # +0.01 on each target -> RMSE 0.01 each -> mean 0.01 (silver)
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: >
+  Prior inspection flagged "no NaN/inf guard on numeric predictions". Checked
+  against the code: the guard really is absent, but the flag does NOT reproduce a
+  medal-winning BLOCK, so this HOLDS honestly.
+  reject_nonfinite PASSES: the grader has no finiteness guard, but this sklearn
+  version's root_mean_squared_error input validation raises on NaN and +/-inf,
+  which Grader.__call__ swallows to None (observed: score=None for all three).
+  Even on an older sklearn that did not validate inputs, a NaN would propagate to
+  a NaN mean-RMSE that wins no medal (NaN comparisons are False) and +/-inf would
+  be the worst value on this lower-better metric -> still no medal. So the missing
+  guard is real in the grader but is benign for medal-winning either way.
+  order_invariance PASSES (sort + elementwise id_seqpos check). reject_wrong_length
+  and reject_duplicate_ids PASS via the total length check (a duplicate makes the
+  submission longer than the answers). The grader is otherwise well-aligned.

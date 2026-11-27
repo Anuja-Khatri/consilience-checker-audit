@@ -1,0 +1,129 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "hms-harmful-brain-activity-classification",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/hms-harmful-brain-activity-classification/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "eeg_id",
+  "prediction_columns": [
+    "seizure_vote",
+    "lpd_vote",
+    "gpd_vote",
+    "lrda_vote",
+    "grda_vote",
+    "other_vote"
+  ],
+  "group_column": null,
+  "prediction_range": [
+    0,
+    1
+  ],
+  "contract_sha256": "f1ea01ef46ad59ff1afc63365e7fd2a131fbc5f802ac8fa38b5be8aa5397ab60",
+  "grade_file_sha256": "fed41c11db9c6e9441ae20e35b24dd0f7680b1c303dc0d0e5cd625ff8d73c050",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "eeg_id": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "seizure_vote": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.5
+    ],
+    "lpd_vote": [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.5
+    ],
+    "gpd_vote": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "lrda_vote": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "grda_vote": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "other_vote": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "reference_score": 0.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (0.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (4 of 5 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    },
+    {
+      "check": "range",
+      "verdict": "PASS",
+      "detail": "out-of-range value 1001.0 rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:08:53.694169+00:00"
+}

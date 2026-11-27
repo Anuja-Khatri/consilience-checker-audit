@@ -1,0 +1,70 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "kuzushiji-recognition",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/kuzushiji-recognition/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "image_id",
+  "prediction_columns": [
+    "labels"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "20449d91fa1988606253f30cd4ab1b562ae5d580b91232e04c677b8bdb464f66",
+  "grade_file_sha256": "0c7742f4d9628daca836aa1af332d2257400ad05f6bf945b7c29f2671f730a2c",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "image_id": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "labels": [
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1",
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1",
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1",
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1",
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1",
+      "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.95,
+    0.9,
+    0.85,
+    0.8,
+    0.75,
+    0.7,
+    0.65,
+    0.6,
+    0.55,
+    0.5
+  ],
+  "reference_score": 0.25,
+  "checks": [
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (0.25) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:08:58.118077+00:00"
+}

@@ -56,3 +56,12 @@ notes: >
   rejected to None, so both reject_nonfinite and range hold. The length check rejects
   the short and duplicated-id submissions; the grader sorts by `eeg_id`, so a row
   permutation is invariant. No aggregation group column.
+  VALIDATION LIMITATION: this grader CANNOT be executed by the current framework.
+  grade.py uses package-relative imports (`from . import kullback_leibler_divergence`,
+  `from .constants import ID_COL, TARGET_COLS`; kullback_leibler_divergence.py itself
+  does `from . import kaggle_metric_utilities`), and src/mleb_check.py's _load_grade_fn
+  loads grade.py as a flat top-level module with no package context, so the relative
+  imports raise `ImportError: attempted relative import with no known parent package`
+  before any grading runs (the competition dir has no __init__.py). The HOLDS verdict
+  above is therefore from READING the published code at commit 507f92e only, not from
+  a framework receipt; it lists no counterexample and no BLOCK.

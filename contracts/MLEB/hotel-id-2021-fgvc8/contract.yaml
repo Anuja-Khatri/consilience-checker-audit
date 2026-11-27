@@ -34,16 +34,17 @@ reference:
 checks:
   - order_invariance
   - reject_wrong_length
-  - reject_duplicate_ids
 
 labels: []
 notes: >
   Expected to HOLD on every listed check. The grader sorts by `image` and aligns by
   id, so a row permutation is invariant. A short submission drops an `image`, so the
-  set-equality check rejects it; a duplicated row keeps the id-set intact but trips
-  the length check (len N+1 vs N -> InvalidSubmissionError -> None). MAP@5 is bounded
-  in [0, 1]. `reject_nonfinite` and `range` are not listed: `hotel_id` is a
+  set-equality check rejects it (InvalidSubmissionError -> None). MAP@5 is bounded in
+  [0, 1]. `reject_nonfinite` and `range` are not listed: `hotel_id` is a
   space-separated id string, not a bounded numeric, so a non-finite numeric value is
-  not applicable to the metric. No aggregation group column, so
-  no_free_gold_subset_perfect is not listed. (Single-id answer values are numeric
-  strings, so the duplicate-id check's float() perturbation is well-defined here.)
+  not applicable to the metric. `reject_duplicate_ids` is not listed because the check
+  harness perturbs the duplicated prediction with float() arithmetic and assigns it
+  back into the `hotel_id` string column, which pandas StringDtype rejects; note that
+  the grader's own length check would in any case reject a duplicated row (len N+1 vs
+  N -> InvalidSubmissionError). No aggregation group column, so
+  no_free_gold_subset_perfect is not listed.

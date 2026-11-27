@@ -1,0 +1,793 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "freesound-audio-tagging-2019",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/freesound-audio-tagging-2019/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "fname",
+  "prediction_columns": [
+    "Accelerating_and_revving_and_vroom",
+    "Accordion",
+    "Acoustic_guitar",
+    "Applause",
+    "Bark",
+    "Bass_drum",
+    "Bass_guitar",
+    "Bathtub_(filling_or_washing)",
+    "Bicycle_bell",
+    "Burping_and_eructation",
+    "Bus",
+    "Buzz",
+    "Car_passing_by",
+    "Cheering",
+    "Chewing_and_mastication",
+    "Child_speech_and_kid_speaking",
+    "Chink_and_clink",
+    "Chirp_and_tweet",
+    "Church_bell",
+    "Clapping",
+    "Computer_keyboard",
+    "Crackle",
+    "Cricket",
+    "Crowd",
+    "Cupboard_open_or_close",
+    "Cutlery_and_silverware",
+    "Dishes_and_pots_and_pans",
+    "Drawer_open_or_close",
+    "Drip",
+    "Electric_guitar",
+    "Fart",
+    "Female_singing",
+    "Female_speech_and_woman_speaking",
+    "Fill_(with_liquid)",
+    "Finger_snapping",
+    "Frying_(food)",
+    "Gasp",
+    "Glockenspiel",
+    "Gong",
+    "Gurgling",
+    "Harmonica",
+    "Hi-hat",
+    "Hiss",
+    "Keys_jangling",
+    "Knock",
+    "Male_singing",
+    "Male_speech_and_man_speaking",
+    "Marimba_and_xylophone",
+    "Mechanical_fan",
+    "Meow",
+    "Microwave_oven",
+    "Motorcycle",
+    "Printer",
+    "Purr",
+    "Race_car_and_auto_racing",
+    "Raindrop",
+    "Run",
+    "Scissors",
+    "Screaming",
+    "Shatter",
+    "Sigh",
+    "Sink_(filling_or_washing)",
+    "Skateboard",
+    "Slam",
+    "Sneeze",
+    "Squeak",
+    "Stream",
+    "Strum",
+    "Tap",
+    "Tick-tock",
+    "Toilet_flush",
+    "Traffic_noise_and_roadway_noise",
+    "Trickle_and_dribble",
+    "Walk_and_footsteps",
+    "Water_tap_and_faucet",
+    "Waves_and_surf",
+    "Whispering",
+    "Writing",
+    "Yell",
+    "Zipper_(clothing)"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "7afa7866d129646d7e3bcac1c907bc385cd3cef64c44b86b50c293e3d156e727",
+  "grade_file_sha256": "2c57b517cbbac3b632e71cce60ede24f0179a2180cd2d0d40dafa2e4311786ab",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "fname": [
+      "f0",
+      "f1",
+      "f2",
+      "f3",
+      "f4",
+      "f5"
+    ],
+    "Accelerating_and_revving_and_vroom": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Accordion": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Acoustic_guitar": [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0
+    ],
+    "Applause": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    "Bark": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    "Bass_drum": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "Bass_guitar": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Bathtub_(filling_or_washing)": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Bicycle_bell": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Burping_and_eructation": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Bus": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Buzz": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Car_passing_by": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Cheering": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Chewing_and_mastication": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Child_speech_and_kid_speaking": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Chink_and_clink": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Chirp_and_tweet": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Church_bell": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Clapping": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Computer_keyboard": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Crackle": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Cricket": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Crowd": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Cupboard_open_or_close": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Cutlery_and_silverware": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Dishes_and_pots_and_pans": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Drawer_open_or_close": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Drip": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Electric_guitar": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Fart": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Female_singing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Female_speech_and_woman_speaking": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Fill_(with_liquid)": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Finger_snapping": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Frying_(food)": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Gasp": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Glockenspiel": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Gong": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Gurgling": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Harmonica": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Hi-hat": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Hiss": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Keys_jangling": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Knock": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Male_singing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Male_speech_and_man_speaking": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Marimba_and_xylophone": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Mechanical_fan": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Meow": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Microwave_oven": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Motorcycle": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Printer": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Purr": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Race_car_and_auto_racing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Raindrop": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Run": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Scissors": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Screaming": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Shatter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Sigh": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Sink_(filling_or_washing)": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Skateboard": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Slam": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Sneeze": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Squeak": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Stream": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Strum": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Tap": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Tick-tock": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Toilet_flush": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Traffic_noise_and_roadway_noise": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Trickle_and_dribble": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Walk_and_footsteps": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Water_tap_and_faucet": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Waves_and_surf": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Whispering": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Writing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Yell": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "Zipper_(clothing)": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.95,
+    0.94,
+    0.93,
+    0.92,
+    0.91,
+    0.9,
+    0.89,
+    0.88,
+    0.87,
+    0.86
+  ],
+  "reference_score": 1.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (1.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:08:52.349121+00:00"
+}

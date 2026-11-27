@@ -77,9 +77,21 @@ def _load_grade_fn(mleb_root: str, grade_rel_path: str):
     import importlib.util
 
     path = Path(mleb_root) / grade_rel_path
-    name = "grade_" + path.parent.name.replace("-", "_")
-    spec = importlib.util.spec_from_file_location(name, path)
+    comp_dir = path.parent
+    # Load grade.py inside a package context so relative imports in the real grader
+    # (e.g. `from .vocabulary import ...`, `from .notebook import ...`) resolve to the
+    # sibling files in the competition directory.
+    pkgname = "mleb_comp_" + comp_dir.name.replace("-", "_").replace(".", "_")
+    if pkgname not in sys.modules:
+        pkg = types.ModuleType(pkgname)
+        pkg.__path__ = [str(comp_dir)]
+        pkg.__package__ = pkgname
+        sys.modules[pkgname] = pkg
+    modname = f"{pkgname}.grade"
+    spec = importlib.util.spec_from_file_location(modname, path)
     mod = importlib.util.module_from_spec(spec)
+    mod.__package__ = pkgname
+    sys.modules[modname] = mod
     spec.loader.exec_module(mod)
     return mod.grade, path
 
@@ -150,10 +162,15 @@ def _to_jsonable(obj):
 def check_reject_nonfinite(ctx):
     grader, answers, lb, ref, contract = ctx
     pcols = contract["prediction_columns"]
+    try:
+        ref[pcols[0]].astype(float)
+    except (TypeError, ValueError):
+        return ABSTAIN, f"prediction column {pcols[0]!r} is not numeric; non-finite attack not applicable", None
     worst = PASS
     details, cex = [], None
     for val, label in [(np.nan, "NaN"), (np.inf, "+inf"), (-np.inf, "-inf")]:
         sub = ref.copy()
+        sub[pcols[0]] = sub[pcols[0]].astype(float)  # allow setting non-finite into an int-typed column
         sub.loc[sub.index[0], pcols[0]] = val
         score = grader(sub, answers)
         medal = _medal(grader, score, lb)
@@ -177,7 +194,8 @@ def check_order_invariance(ctx):
         return ABSTAIN, "reference did not score", None
     if score is None or not np.isclose(float(score), float(base), rtol=1e-9, atol=1e-12):
         cex = {"attack": "same submission, rows shuffled (id->value preserved)",
-               "submission": _to_jsonable(shuf), "reference_score": _to_jsonable(base),
+               "submission": _to_jsonable(shuf), "reference_submission": _to_jsonable(ref),
+               "reference_score": _to_jsonable(base),
                "observed_score": _to_jsonable(score), "observed_medal": _medal(grader, score, lb)}
         return BLOCK, f"reference score {base} changed to {score} under a row permutation", cex
     return PASS, f"score unchanged ({base}) under row permutation", None
@@ -303,18 +321,26 @@ def run_contract(contract_path: str, mleb_root: str = DEFAULT_MLEB_ROOT) -> dict
     results = []
     verdict_rank = {PASS: 0, ABSTAIN: 0, BLOCK: 1}
     worst = PASS
-    for name in contract["checks"]:
-        fn = CHECKS.get(name)
-        if fn is None:
-            results.append({"check": name, "verdict": ABSTAIN, "detail": "unknown check", "counterexample": None})
-            continue
-        v, detail, cex = fn(copy.copy(ctx))
-        results.append({"check": name, "verdict": v, "detail": detail, "counterexample": cex})
-        if verdict_rank[v] > verdict_rank[worst]:
-            worst = v
-
-    any_abstain = any(r["verdict"] == ABSTAIN for r in results)
-    overall = "BREAKS" if worst == BLOCK else ("PARTIAL" if any_abstain else "HOLDS")
+    if ref_score is None:
+        # The grader rejected the declared-valid reference submission, so the
+        # checks cannot be exercised. The contract is unrunnable as written.
+        overall = "ABSTAIN"
+        results.append({"check": "reference", "verdict": ABSTAIN,
+                        "detail": "reference_rejected: the grader returned None on the declared-valid "
+                                  "reference submission; the contract cannot be exercised as written",
+                        "counterexample": None})
+    else:
+        for name in contract["checks"]:
+            fn = CHECKS.get(name)
+            if fn is None:
+                results.append({"check": name, "verdict": ABSTAIN, "detail": "unknown check", "counterexample": None})
+                continue
+            v, detail, cex = fn(copy.copy(ctx))
+            results.append({"check": name, "verdict": v, "detail": detail, "counterexample": cex})
+            if verdict_rank[v] > verdict_rank[worst]:
+                worst = v
+        any_abstain = any(r["verdict"] == ABSTAIN for r in results)
+        overall = "BREAKS" if worst == BLOCK else ("PARTIAL" if any_abstain else "HOLDS")
 
     receipt = {
         "kind": "mleb-grader-check/v1",

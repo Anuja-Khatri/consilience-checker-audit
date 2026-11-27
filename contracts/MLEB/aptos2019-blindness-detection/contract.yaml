@@ -25,7 +25,7 @@ metric:
 answers:
   id: ["a0", "a1", "a2", "a3", "a4"]
   columns:
-    diagnosis: [0, 1, 2, 3, 4]
+    diagnosis: [0.0, 1.0, 2.0, 3.0, 4.0]   # float so the non-finite check can set NaN/inf (a CSV label parses to float)
 
 leaderboard: [0.999, 0.998, 0.997, 0.996, 0.995, 0.994, 0.993, 0.992, 0.991, 0.990]
 

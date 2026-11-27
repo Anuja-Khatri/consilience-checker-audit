@@ -1,0 +1,50 @@
+kind: mleb-grader-contract
+competition_id: mlsp-2013-birds
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/mlsp-2013-birds/grade.py
+description: >
+  Metric: ROC-AUC. Higher is better, bounded [0, 1]. The grader is helper-only: it
+  delegates entirely to mlebench.competitions.utils.prepare_for_auroc_metric,
+  which checks the `Id` and `Probability` columns, equal length, numeric
+  predictions, the [0, 1] probability range (min < 0 or max > 1 -> reject), sorts
+  by Id and re-checks id equality.
+
+id_column: Id
+prediction_columns: [Probability]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+prediction_range: [0, 1]   # enforced by prepare_for_auroc_metric
+
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    Probability: [1.0, 0.0, 1.0, 0.0, 1.0, 0.0]   # true labels; reference copies them -> AUROC 1.0 (float so the nonfinite check can assign NaN/inf)
+
+leaderboard: [0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50]
+
+reference:
+  kind: exact
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+  - range
+
+labels: []
+notes: >
+  Expected to HOLD on every check. The helper enforces the [0, 1] range (an inf or
+  the out-of-range value 1001 -> max > 1 -> InvalidSubmissionError -> None; a NaN
+  slips the skipna min/max but then roc_auc_score raises -> None), equal length
+  (short or duplicate-id submissions -> length mismatch -> None), and id alignment
+  by sort + elementwise check. The AUROC is bounded [0, 1], so no finiteness gap.
+  A well-validated, fully delegated grader.

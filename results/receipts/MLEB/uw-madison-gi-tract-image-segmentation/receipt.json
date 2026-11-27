@@ -1,0 +1,150 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "uw-madison-gi-tract-image-segmentation",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/uw-madison-gi-tract-image-segmentation/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "id",
+  "prediction_columns": [
+    "predicted"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "7f438264320dc630a28029ce30c907b621335c60dc60b2297d1152f320e7e633",
+  "grade_file_sha256": "a92fcf3f974348d5f08ff89c72e19bc0fac95e170e292c462e807f802f8b519b",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "id": [
+      "case1_day1_slice_0001",
+      "case1_day1_slice_0002",
+      "case2_day1_slice_0001",
+      "case3_day1_slice_0001"
+    ],
+    "predicted": [
+      "1 1",
+      "1 2",
+      "1 3",
+      "1 4"
+    ],
+    "class": [
+      "large_bowel",
+      "large_bowel",
+      "large_bowel",
+      "large_bowel"
+    ],
+    "image_height": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "image_width": [
+      2,
+      2,
+      2,
+      2
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.98,
+    0.95,
+    0.92,
+    0.9,
+    0.88,
+    0.85,
+    0.8,
+    0.75,
+    0.7,
+    0.6
+  ],
+  "reference_score": 1.0,
+  "checks": [
+    {
+      "check": "order_invariance",
+      "verdict": "BLOCK",
+      "detail": "reference score 1.0 changed to 0.83667 under a row permutation",
+      "counterexample": {
+        "attack": "same submission, rows shuffled (id->value preserved)",
+        "submission": {
+          "id": [
+            "case3_day1_slice_0001",
+            "case2_day1_slice_0001",
+            "case1_day1_slice_0001",
+            "case1_day1_slice_0002"
+          ],
+          "predicted": [
+            "1 4",
+            "1 3",
+            "1 1",
+            "1 2"
+          ],
+          "class": [
+            "large_bowel",
+            "large_bowel",
+            "large_bowel",
+            "large_bowel"
+          ]
+        },
+        "reference_submission": {
+          "id": [
+            "case1_day1_slice_0001",
+            "case1_day1_slice_0002",
+            "case2_day1_slice_0001",
+            "case3_day1_slice_0001"
+          ],
+          "predicted": [
+            "1 1",
+            "1 2",
+            "1 3",
+            "1 4"
+          ],
+          "class": [
+            "large_bowel",
+            "large_bowel",
+            "large_bowel",
+            "large_bowel"
+          ]
+        },
+        "reference_score": 1.0,
+        "observed_score": 0.83667,
+        "observed_medal": "none"
+      }
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "BLOCK",
+      "detail": "short submission accepted and won a gold (score=1.0)",
+      "counterexample": {
+        "attack": "short submission (3 of 4 rows)",
+        "submission": {
+          "id": [
+            "case1_day1_slice_0001",
+            "case1_day1_slice_0002",
+            "case2_day1_slice_0001"
+          ],
+          "predicted": [
+            "1 1",
+            "1 2",
+            "1 3"
+          ],
+          "class": [
+            "large_bowel",
+            "large_bowel",
+            "large_bowel"
+          ]
+        },
+        "observed_score": 1.0,
+        "observed_medal": "gold"
+      }
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:12.541688+00:00"
+}

@@ -207,3 +207,13 @@ notes: >
   `fname`, so a row permutation is invariant. `range` is not listed: lwlrap is a
   ranking metric with no [0,1] bound enforced on the raw scores. No aggregation
   group column, so no_free_gold_subset_perfect is not listed.
+  VALIDATION LIMITATION: this grader CANNOT be executed by the current framework.
+  grade.py uses a package-relative import (`from .vocabulary import CLASS_NAMES`) and
+  src/mleb_check.py's _load_grade_fn loads grade.py as a flat top-level module with no
+  package context, so it raises `ImportError: attempted relative import with no known
+  parent package` before any grading runs (the competition dir has no __init__.py).
+  The HOLDS verdict above is from READING the published code at commit 507f92e only,
+  not from a framework receipt; it lists no counterexample and no BLOCK. In particular
+  the reject_nonfinite expectation relies on sklearn's label_ranking_average_precision_score
+  validating inputs with check_array (which rejects NaN/+-inf) - asserted from the code,
+  not executed here.

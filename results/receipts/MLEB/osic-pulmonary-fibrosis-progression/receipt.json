@@ -1,0 +1,127 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "osic-pulmonary-fibrosis-progression",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/osic-pulmonary-fibrosis-progression/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "Patient_Week",
+  "prediction_columns": [
+    "FVC"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "501a1f11a3303227a1961576fed5b42c559c35ecaba229fa2d86699c2f35e467",
+  "grade_file_sha256": "9839f133337c72a6fab5e7f2d67a4279673e07b2846a24788bfe0cb22105c289",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "Patient_Week": [
+      "P1_1",
+      "P1_2",
+      "P1_3",
+      "P2_1",
+      "P2_2",
+      "P2_3"
+    ],
+    "FVC": [
+      2000.0,
+      2100.0,
+      2200.0,
+      2500.0,
+      2600.0,
+      2700.0
+    ],
+    "Confidence": [
+      70,
+      70,
+      70,
+      70,
+      70,
+      70
+    ],
+    "Patient": [
+      "P1",
+      "P1",
+      "P1",
+      "P2",
+      "P2",
+      "P2"
+    ]
+  },
+  "synthetic_leaderboard": [
+    -4.2,
+    -4.6,
+    -5.0,
+    -5.5,
+    -6.0,
+    -6.5,
+    -7.0,
+    -7.5,
+    -8.0,
+    -8.5
+  ],
+  "reference_score": -4.59507,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=np.float64(nan), medal=none; +inf: score=np.float64(-7.96224), medal=none; -inf: score=np.float64(-7.96224), medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (-4.59507) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "BLOCK",
+      "detail": "short submission accepted and won a silver (score=-4.59507)",
+      "counterexample": {
+        "attack": "short submission (5 of 6 rows)",
+        "submission": {
+          "Patient_Week": [
+            "P1_1",
+            "P1_2",
+            "P1_3",
+            "P2_1",
+            "P2_2"
+          ],
+          "FVC": [
+            2000.0,
+            2100.0,
+            2200.0,
+            2500.0,
+            2600.0
+          ],
+          "Confidence": [
+            70,
+            70,
+            70,
+            70,
+            70
+          ]
+        },
+        "observed_score": -4.59507,
+        "observed_medal": "silver"
+      }
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "BREAKS",
+  "labels": [
+    "MLEB-KNOWN-07"
+  ],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:03.712340+00:00"
+}

@@ -1,0 +1,91 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "mlsp-2013-birds",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/mlsp-2013-birds/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "Id",
+  "prediction_columns": [
+    "Probability"
+  ],
+  "group_column": null,
+  "prediction_range": [
+    0,
+    1
+  ],
+  "contract_sha256": "e10bc8e5610f818932264a16e1ad2c10cf858df48cfc13b37c77e0a4d3431187",
+  "grade_file_sha256": "af0eb1d740afe1be7665e9a950688b93f59416885b7800f3f54fc31ba6503429",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "Id": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "Probability": [
+      1.0,
+      0.0,
+      1.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.95,
+    0.9,
+    0.85,
+    0.8,
+    0.75,
+    0.7,
+    0.65,
+    0.6,
+    0.55,
+    0.5
+  ],
+  "reference_score": 1.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (1.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    },
+    {
+      "check": "range",
+      "verdict": "PASS",
+      "detail": "out-of-range value 1001.0 rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:08:59.204483+00:00"
+}

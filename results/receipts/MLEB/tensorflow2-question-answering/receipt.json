@@ -1,0 +1,56 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "tensorflow2-question-answering",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/tensorflow2-question-answering/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "example_id",
+  "prediction_columns": [
+    "PredictionString"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "725812e35b7da0915c609415a441e3abdcc69ae78547423ec8ef9512f978c7e1",
+  "grade_file_sha256": "7b9683422ee77fa4febe9fd9384b861e36a6af0a553c90cc7affad98b7e27527",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "example_id": [
+      "e0",
+      "e1"
+    ],
+    "PredictionString": [
+      "",
+      ""
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.9,
+    0.8,
+    0.7,
+    0.6,
+    0.5,
+    0.4,
+    0.3,
+    0.2,
+    0.1,
+    0.05
+  ],
+  "reference_score": null,
+  "checks": [
+    {
+      "check": "reference",
+      "verdict": "ABSTAIN",
+      "detail": "reference_rejected: the grader returned None on the declared-valid reference submission; the contract cannot be exercised as written",
+      "counterexample": null
+    }
+  ],
+  "verdict": "ABSTAIN",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:10.239267+00:00"
+}

@@ -1,0 +1,81 @@
+kind: mleb-grader-contract
+competition_id: jigsaw-unintended-bias-in-toxicity-classification
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/jigsaw-unintended-bias-in-toxicity-classification/grade.py
+description: >
+  Metric: the competition's custom weighted ROC-AUC (overall AUC plus the
+  power-mean, p=-5, of subgroup/BPSN/BNSP bias AUCs). Higher is better, bounded
+  [0, 1]. Validity (from the Kaggle task): a submission has an `id` column
+  matching the answers and a `prediction` probability per id. The grader sorts by
+  id and checks id equality, but it does NOT validate that `prediction` lies in
+  [0, 1]: it thresholds each prediction at 0.5 (x >= 0.5 -> 1 else 0) before every
+  ROC-AUC (known issue openai/mle-bench #157).
+
+id_column: id
+prediction_columns: [prediction]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+prediction_range: [0, 1]   # a valid probability range; the grader does NOT enforce it
+
+# answers carries `toxicity` (true label), the 9 identity columns used by the
+# grader's default identity_columns, and a `prediction` column so the reference
+# builder can select the submission schema (id + prediction). toxicity/identity
+# pattern keeps every subgroup/BPSN/BNSP subset two-class, so no roc_auc_score
+# raises and the reference scores.
+answers:
+  id: [1, 2, 3, 4, 5, 6, 7, 8]
+  columns:
+    toxicity: [1, 0, 1, 0, 1, 0, 1, 0]
+    male:                          [1, 1, 0, 0, 1, 1, 0, 0]
+    female:                        [1, 1, 0, 0, 1, 1, 0, 0]
+    homosexual_gay_or_lesbian:     [1, 1, 0, 0, 1, 1, 0, 0]
+    christian:                     [1, 1, 0, 0, 1, 1, 0, 0]
+    jewish:                        [1, 1, 0, 0, 1, 1, 0, 0]
+    muslim:                        [1, 1, 0, 0, 1, 1, 0, 0]
+    black:                         [1, 1, 0, 0, 1, 1, 0, 0]
+    white:                         [1, 1, 0, 0, 1, 1, 0, 0]
+    psychiatric_or_mental_illness: [1, 1, 0, 0, 1, 1, 0, 0]
+    prediction: [0.9, 0.1, 0.9, 0.1, 0.9, 0.1, 0.9, 0.1]
+
+# A tight leaderboard (all near 1.0) so that only a score of ~1.0 earns a medal.
+# This isolates the finding: a value-preserving non-finite/out-of-range prediction
+# keeps the perfect 1.0 and still wins gold; a degrading NaN (-> 0.84) wins nothing.
+leaderboard: [0.99, 0.98, 0.97, 0.96, 0.95, 0.94, 0.93, 0.92, 0.91, 0.90]
+
+reference:
+  kind: exact            # prediction thresholds to the true toxicity -> all AUCs 1.0 -> score 1.0
+
+checks:
+  - reject_nonfinite
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+  - range
+
+labels: [MLEB-KNOWN-05]
+notes: >
+  BREAKS. Confirms known issue openai/mle-bench #157 (MLEB-KNOWN-05): the grader
+  never validates that a prediction is a finite probability in [0, 1]; it only
+  compares each prediction to 0.5 (x >= 0.5 -> 1 else 0). Two checks BLOCK, both on
+  this single root cause:
+    - range: an out-of-range prediction (1001) thresholds to 1 just like the
+      reference's 0.9, leaving the perfect classification and the gold medal intact
+      -> accepted and wins gold.
+    - reject_nonfinite: a +inf prediction likewise thresholds to 1 (inf >= 0.5),
+      preserving the perfect score 1.0 and the gold medal -> a non-finite
+      prediction is accepted and wins gold. (A NaN thresholds to 0, degrading the
+      score; with the tight leaderboard it wins no medal, so the finding is cleanly
+      about accepting values that should have been rejected.)
+  The remaining checks HOLD: order_invariance (id sort), reject_wrong_length and
+  reject_duplicate_ids (a duplicate id makes the sorted id arrays differ in length
+  -> comparison fails -> None). Not a new finding: this is the documented
+  0.5-thresholding behaviour of #157, which also explains why no probability-range
+  or finiteness validation exists.

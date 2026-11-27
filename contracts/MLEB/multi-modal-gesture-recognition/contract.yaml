@@ -1,0 +1,55 @@
+kind: mleb-grader-contract
+competition_id: multi-modal-gesture-recognition
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/multi-modal-gesture-recognition/grade.py
+description: >
+  Metric: Levenshtein edit-distance error rate (sum of per-line edit distances
+  divided by the total number of ground-truth gestures). Lower is better,
+  unbounded above (it can exceed 1). Validity (from the Kaggle task): a submission
+  has an `Id` column matching the answers and a `Sequence` of space-separated
+  integers per id. The grader checks equal length, the Id/Sequence columns, sorts
+  by Id, re-checks id equality, and parses each Sequence to a list of ints
+  (ValueError -> reject).
+
+id_column: Id
+prediction_columns: [Sequence]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: lower_better
+  bounded: [0, null]       # error rate >= 0, can exceed 1; no favorable infinity (lower-better)
+
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    Sequence: ["1 2 3", "4 5", "6 7 8 9", "1", "2 3 4", "5 6"]
+
+leaderboard: [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00]
+
+reference:
+  kind: exact            # Sequence == answers -> edit distance 0 -> score 0.0
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD. The grader aligns by Id (sort + elementwise check + length
+  check); because the metric is lower-better and unbounded above, a non-finite
+  score could only ever be the worst score, never a favorable infinity. Two checks
+  are intentionally NOT listed because they are not applicable to a string
+  `Sequence` column: (1) reject_nonfinite injects a float inf, which pandas refuses
+  to assign to the string-dtype column (TypeError) -- and in any case int() of
+  "nan"/"inf" raises ValueError -> None; (2) reject_duplicate_ids casts the
+  Sequence string to float, which raises ValueError. The grader's length + id
+  checks reject duplicate-id rows anyway. Validated: reference_score 0.0, both
+  checks PASS. (grade.py imports `from Levenshtein import distance`; the Levenshtein
+  package must be present in the checker venv for this to load.)
+  NOTE: the known data-leakage issue for this competition (public .mat files
+  expose test labels, openai/mle-bench #77) is a data/prep problem, orthogonal to
+  this grader-contract audit.

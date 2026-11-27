@@ -1,0 +1,56 @@
+kind: mleb-grader-contract
+competition_id: tensorflow2-question-answering
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/tensorflow2-question-answering/grade.py
+description: >
+  Metric: micro-averaged F1 over long/short answer retrieval, bounded in [0, 1],
+  higher is better. The grader is well structured: it requires len(submission) ==
+  2 * len(answers), the example_id set to equal the expected {id}_long/{id}_short
+  set, unique example_ids, and valid PredictionString formats (raising
+  InvalidSubmissionError on each violation).
+
+id_column: example_id
+prediction_columns: [PredictionString]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+# The real answers for this competition are a list-of-dicts parsed from a jsonl
+# file (each with nested 'annotations' -> long_answer / short_answers /
+# yes_no_answer), NOT a tabular answers.csv. The fields below are placeholders so
+# the contract parses; they CANNOT reproduce the real grader input.
+answers:
+  id: ["e0", "e1"]
+  columns:
+    PredictionString: ["", ""]
+
+leaderboard: [0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10, 0.05]
+
+reference:
+  kind: exact
+
+checks: []
+
+labels: []
+notes: >
+  NOT MODELABLE BY THIS CHECKER (reported honestly, no receipt produced). The
+  checker's build_answers always constructs a pandas DataFrame, but this grader
+  expects `answers` to be a Python list of dicts in the format of
+  simplified-nq-train.jsonl. grade() does `len(answers)`, then `for sample in
+  answers: sample['example_id']` and reads nested `sample['annotations'][0]
+  ['long_answer']['start_token']` etc. Handed a DataFrame, iteration yields
+  column-name strings and `sample['example_id']` raises TypeError, so the grade
+  function would error and Grader.__call__ would return None (no valid reference
+  score). The nested annotation structure also cannot be expressed in the flat
+  id+columns schema. Modelling it would need a jsonl-aware answers builder, which
+  is out of scope for this contract framework.
+  Code reading: the grader is one of the better-validated in the set (explicit
+  length, id-set, uniqueness and format checks; bounded [0,1] metric, so no
+  favorable-infinity path). No gap identified by inspection, but this could not
+  be confirmed by running the checker.

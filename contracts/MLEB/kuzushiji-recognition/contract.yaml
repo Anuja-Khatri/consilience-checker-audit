@@ -1,0 +1,63 @@
+kind: mleb-grader-contract
+competition_id: kuzushiji-recognition
+contract_author: model
+source:
+  repo: https://github.com/openai/mle-bench
+  commit: 507f92e1138bb6e40dac5c6ee7a6758e6424bf97
+  grade_path: mlebench/competitions/kuzushiji-recognition/grade.py
+description: >
+  Metric: a modified F1 over detected characters (a true positive is a predicted
+  center point inside a ground-truth box with a matching label). Higher is better,
+  bounded [0, 1]. Validity (from the Kaggle task): a submission has an `image_id`
+  column matching the answers and a `labels` string "label X Y label X Y ..."
+  (triples) per image. The grader checks equal length, the required columns, sorts
+  by image_id, re-checks id equality, and validates the label format (token count
+  divisible by 3, X/Y float-parseable).
+
+id_column: image_id
+prediction_columns: [labels]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+# The submission `labels` are triples (label X Y); the answers `labels` are
+# 5-tuples (label X Y Width Height). The reference builder copies answers' labels
+# into the submission, so each `labels` string must parse BOTH ways. A 15-token
+# all-numeric string does: as a submission it is 5 (label X Y) triples; as an
+# answer it is 3 (label X Y W H) boxes. This string also yields >=1 true positive
+# per row, so the reference scores a finite F1 (> 0).
+answers:
+  id: [1, 2, 3, 4, 5, 6]
+  columns:
+    labels:
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+      - "5 1 1 5 3 2 1 1 1 1 0 1 1 1 1"
+
+leaderboard: [0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50]
+
+reference:
+  kind: exact
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+
+labels: []
+notes: >
+  Expected to HOLD. The grader aligns by image_id (sort + elementwise check +
+  length check) and validates the label format; the F1 is bounded [0, 1] so there
+  is no finiteness gap. Two checks are intentionally NOT listed because they are
+  not applicable to a string `labels` column: (1) reject_nonfinite injects a float
+  inf, which pandas refuses to assign to the string-dtype column (TypeError) -- and
+  in any case a NaN is skipped (pd.isna) and an inf makes .split() raise
+  AttributeError -> None, winning no medal; (2) reject_duplicate_ids casts the
+  label string to float, which raises ValueError. The grader's length + id checks
+  reject duplicate-id rows anyway. (kuzushiji_f1 uses a multiprocessing Pool, which
+  runs fine under the checker.) Validated: reference_score 0.25, both checks PASS.

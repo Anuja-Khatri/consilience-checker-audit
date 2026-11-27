@@ -49,9 +49,18 @@ def load_pipeline(mleb_root: str):
 
 def load_grade(mleb_root: str, grade_rel: str):
     path = Path(mleb_root) / grade_rel
-    name = "indep_grade_" + path.parent.name.replace("-", "_")
-    spec = importlib.util.spec_from_file_location(name, path)
+    comp_dir = path.parent
+    pkgname = "indep_comp_" + comp_dir.name.replace("-", "_").replace(".", "_")
+    if pkgname not in sys.modules:
+        pkg = types.ModuleType(pkgname)
+        pkg.__path__ = [str(comp_dir)]
+        pkg.__package__ = pkgname
+        sys.modules[pkgname] = pkg
+    modname = f"{pkgname}.grade"
+    spec = importlib.util.spec_from_file_location(modname, path)
     mod = importlib.util.module_from_spec(spec)
+    mod.__package__ = pkgname
+    sys.modules[modname] = mod
     spec.loader.exec_module(mod)
     return mod.grade
 
@@ -129,10 +138,22 @@ def verify_block(gh, grade_fn, receipt, check):
         return False, f"expected a non-finite prediction winning a medal; got medal={medal}, has_nonfinite={has_nonfinite}"
 
     if name == "order_invariance":
-        # independent: same rows, sorted by id, must give the same score if the grader aligned by id
+        # independent: the stored reference and shuffled submissions are the SAME multiset of
+        # rows in a different order, yet score differently -> the grader depends on row order.
+        s_shuf = score  # re-run of the stored shuffled submission
+        ref_sub = cex.get("reference_submission")
+        if ref_sub is not None:
+            s_ref, _m, _s, _a = rerun(gh, grade_fn, ref_sub, answers, lb)
+            rrows = sorted(tuple(map(str, r)) for r in df_from(ref_sub).values.tolist())
+            srows = sorted(tuple(map(str, r)) for r in sub.values.tolist())
+            is_perm = rrows == srows
+            differ = (s_ref is None) != (s_shuf is None) or (
+                s_ref is not None and s_shuf is not None and not np.isclose(float(s_ref), float(s_shuf), rtol=1e-9, atol=1e-12))
+            if is_perm and differ:
+                return True, f"a row permutation changed the score ({s_ref} -> {s_shuf})"
+            return False, f"permutation={is_perm}, scores ref={s_ref} shuf={s_shuf}"
         if not idcol:
-            return False, "no id column to test order independence"
-        s_shuf = score
+            return False, "no reference submission stored and no id column"
         sorted_sub = sub.sort_values(idcol).reset_index(drop=True)
         s_sorted, _m, _s, _a = rerun(gh, grade_fn, sorted_sub.to_dict(orient="list"), answers, lb)
         differ = (s_sorted is None) != (s_shuf is None) or (
@@ -140,6 +161,12 @@ def verify_block(gh, grade_fn, receipt, check):
         if differ:
             return True, f"score depends on row order (sorted={s_sorted}, shuffled={s_shuf})"
         return False, "could not reproduce order dependence"
+
+    if name == "reject_wrong_length":
+        shorter = len(sub) < len(ans)
+        if shorter and score is not None and medal in MEDALS:
+            return True, f"a {len(sub)}-row submission (answers have {len(ans)}) was accepted and won {medal}"
+        return False, f"expected a short accepted medal-winning submission; shorter={shorter}, score={score}, medal={medal}"
 
     if name == "reject_duplicate_ids":
         if not idcol:

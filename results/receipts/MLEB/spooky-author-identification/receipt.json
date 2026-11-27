@@ -1,0 +1,109 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "spooky-author-identification",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/spooky-author-identification/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "id",
+  "prediction_columns": [
+    "EAP",
+    "HPL",
+    "MWS"
+  ],
+  "group_column": null,
+  "prediction_range": [
+    0,
+    1
+  ],
+  "contract_sha256": "f2ff583b8bf37a57583adeaecbdd5b5414c313ef9fef87a2c584e7ccaece88f9",
+  "grade_file_sha256": "a95bd5969572fe4d2224dd010640f316a83ea55810bdff91b39a705db0305f59",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "id": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "EAP": [
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "HPL": [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "MWS": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.65,
+    0.8,
+    0.95,
+    1.1,
+    1.3,
+    1.5
+  ],
+  "reference_score": 0.0,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (0.0) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    },
+    {
+      "check": "range",
+      "verdict": "PASS",
+      "detail": "out-of-range value 1001.0 rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:07.746114+00:00"
+}

@@ -1,0 +1,124 @@
+{
+  "kind": "mleb-grader-check/v1",
+  "engine": "consilience-checker-audit mleb_check; reuses the consilience PASS/BLOCK/ABSTAIN verdict set and receipt discipline",
+  "competition_id": "stanford-covid-vaccine",
+  "source": {
+    "repo": "https://github.com/openai/mle-bench",
+    "commit": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "grade_path": "mlebench/competitions/stanford-covid-vaccine/grade.py"
+  },
+  "contract_author": "model",
+  "id_column": "id_seqpos",
+  "prediction_columns": [
+    "reactivity",
+    "deg_Mg_pH10",
+    "deg_Mg_50C"
+  ],
+  "group_column": null,
+  "prediction_range": null,
+  "contract_sha256": "6e1baf672882fd62ce930ab1099e664274c34888043f9f19834742975f9a8b8d",
+  "grade_file_sha256": "73b5d321bc7aeba25e5dfe7291fc966f9596eac7a8ab0ff44a581e69ddc55013",
+  "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
+  "seed": 0,
+  "synthetic_answers": {
+    "id_seqpos": [
+      "id_0",
+      "id_1",
+      "id_2",
+      "id_3",
+      "id_4",
+      "id_5"
+    ],
+    "reactivity": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      1.0
+    ],
+    "deg_Mg_pH10": [
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9
+    ],
+    "deg_Mg_50C": [
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ],
+    "deg_pH10": [
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1
+    ],
+    "deg_50C": [
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2,
+      0.2
+    ],
+    "keep": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "synthetic_leaderboard": [
+    0.005,
+    0.01,
+    0.02,
+    0.03,
+    0.05,
+    0.08,
+    0.1,
+    0.15,
+    0.2,
+    0.3
+  ],
+  "reference_score": 0.01,
+  "checks": [
+    {
+      "check": "reject_nonfinite",
+      "verdict": "PASS",
+      "detail": "NaN: score=None, medal=none; +inf: score=None, medal=none; -inf: score=None, medal=none",
+      "counterexample": null
+    },
+    {
+      "check": "order_invariance",
+      "verdict": "PASS",
+      "detail": "score unchanged (0.01) under row permutation",
+      "counterexample": null
+    },
+    {
+      "check": "reject_wrong_length",
+      "verdict": "PASS",
+      "detail": "short submission (5 of 6 rows) rejected",
+      "counterexample": null
+    },
+    {
+      "check": "reject_duplicate_ids",
+      "verdict": "PASS",
+      "detail": "submission with a duplicate id rejected",
+      "counterexample": null
+    }
+  ],
+  "verdict": "HOLDS",
+  "labels": [],
+  "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
+  "created": "2026-11-27T09:09:08.950326+00:00"
+}
