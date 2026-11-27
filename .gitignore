@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Isolated clones of third-party targets are never committed here.
+# They live outside this repo (see SOURCES.yaml for the pinned commits).
+openai-targets/
+
+# Local scratch
+scratch/
+*.log.local

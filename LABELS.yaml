@@ -1,0 +1,103 @@
+# Known public issues. A finding that matches one of these is reported as a confirmation
+# with its citation, never as a new finding. Sources are in research/02-prior-audits.md.
+# Frozen with the preregistration. New public issues found later are added here and logged
+# in VERIFICATION_LOG.md.
+
+mle_bench:
+  shared_grader:
+    - id: MLEB-KNOWN-01
+      what: "Grader.__call__ catches any exception and returns None; a missing score is not a failure (catch-all wrapper)."
+      refs: ["BenchJack arXiv:2605.12673 (V6)", "openai/mle-bench issue #150"]
+      matches_kinds: ["harness_failed_swallowed", "nan_score"]
+    - id: MLEB-KNOWN-02
+      what: "Medal threshold used >= instead of >, so a value exactly at the gold cutoff wins gold (aerial-cactus-identification scores 1.0)."
+      refs: ["BenchJack arXiv:2605.12673 (F.3)"]
+      matches_kinds: ["decision_flips_under_invariance", "threshold_boundary"]
+    - id: MLEB-KNOWN-03
+      what: "/validate grading server echoed raw grader exceptions and was rate-unlimited (oracle channel)."
+      refs: ["BenchJack arXiv:2605.12673"]
+      matches_kinds: ["oracle_channel"]
+      note: "Harness-level, outside this per-grader audit's scope."
+  leakage_harness:
+    - id: MLEB-KNOWN-04
+      what: "Private answers bind-mounted; committed leaderboard.csv; train_test_split(random_state=0) makes the private split recomputable; raw-ID leakage across the split."
+      refs: ["BenchJack arXiv:2605.12673 (E.3)", "openai/mle-bench issues #128,#108,#77,#47"]
+      matches_kinds: ["data_leakage"]
+      note: "Harness/data-prep level, outside this per-grader audit's scope."
+  per_competition:
+    - id: MLEB-KNOWN-05
+      target: "jigsaw-unintended-bias-in-toxicity-classification"
+      what: "Grader thresholds predictions at 0.5 before ROC-AUC, discarding ranking information."
+      refs: ["openai/mle-bench issue #157"]
+      matches_kinds: ["metric_logic_gap"]
+    - id: MLEB-KNOWN-06
+      target: "champs-scalar-coupling, predict-volcanic-eruptions-ingv-oe"
+      what: "Graders do not reject duplicate IDs; repeating rows changes the score."
+      refs: ["openai/mle-bench issue #156"]
+      matches_kinds: ["accepts_duplicate_ids"]
+      note: "The duplicate-ID aspect is known. A distinct -inf-on-unbounded-metric -> gold path on champs, if confirmed, is a separate finding; check carefully before calling it new."
+    - id: MLEB-KNOWN-07
+      target: "osic-pulmonary-fibrosis-progression"
+      what: "Average covers only submitted rows, so omitting poorly predicted rows can raise the score."
+      refs: ["openai/mle-bench issue #153"]
+      matches_kinds: ["partial_submission_averaging"]
+    - id: MLEB-KNOWN-08
+      target: "text-normalization graders"
+      what: "A pandas-3 TypeError is swallowed and the score becomes None (same class as the shared wrapper)."
+      refs: ["openai/mle-bench issue #150"]
+      matches_kinds: ["harness_failed_swallowed"]
+    - id: MLEB-KNOWN-09
+      target: "smartphone-decimeter-2022"
+      what: "A known grading quirk exploited for a 0.0 path."
+      refs: ["openai/mle-bench issue #93", "referenced in PR #118"]
+      matches_kinds: ["metric_logic_gap", "order_dependence"]
+      note: "Order-dependence of the positional haversine may or may not be the same quirk; confirm against #93 before calling any order finding new."
+    - id: MLEB-KNOWN-10
+      target: "various (validate_submission)"
+      what: "validate_submission bugs; tensorflow2-question-answering expects test.csv but the file is test.jsonl."
+      refs: ["openai/mle-bench issue #134", "README known issues"]
+      matches_kinds: ["validate_submission_bug"]
+  governance:
+    - id: MLEB-KNOWN-11
+      what: "Test-set-feedback leaderboard entries (early-termination bronze signal; evolutionary search on private scores). Governance follow-ups and inconsistent leaderboard separation."
+      refs: ["openai/mle-bench PRs #118,#119,#125,#130", "issue #138"]
+      matches_kinds: ["test_set_feedback"]
+      note: "Protocol/governance, not a per-grader contract finding."
+
+simple_evals:
+  - id: SE-KNOWN-01
+    target: "math_eval.py"
+    what: "Grading takes the first 'Answer:' match rather than the final; check_equality inserts candidate text raw into the grader prompt (injection surface)."
+    refs: ["openai/simple-evals issue #115"]
+    matches_kinds: ["first_vs_last_answer", "prompt_injection"]
+  - id: SE-KNOWN-02
+    target: "drop_eval.py"
+    what: "fuzzy_match accepts substring containment in either direction; non-answers graded correct."
+    refs: ["openai/simple-evals issue #133"]
+    matches_kinds: ["bidirectional_substring", "weak_string_match"]
+  - id: SE-KNOWN-03
+    target: "mmlu_eval.py"
+    what: "Answer-extraction regex fails on a repeated 'Answer: LETTER' pattern."
+    refs: ["openai/simple-evals issue #33"]
+    matches_kinds: ["repeated_answer_regex"]
+  - id: SE-KNOWN-04
+    target: "mgsm_eval.py"
+    what: "parse_answer mishandles minus signs and locale separators; can credit opposite-sign answers."
+    refs: ["openai/simple-evals issues #129, #132"]
+    matches_kinds: ["sign_locale_parsing", "last_number_wins"]
+  - id: SE-KNOWN-05
+    target: "healthbench (hedging criterion)"
+    what: "An inverted hedging consensus criterion (affects a GPT-5.4 grader)."
+    refs: ["openai/simple-evals issue #125"]
+    matches_kinds: ["inverted_criterion"]
+  - id: SE-KNOWN-06
+    target: "simpleqa_eval.py, browsecomp_eval.py"
+    what: "SimpleQA grader-template and grader-version issues; suspected incorrect reference answers."
+    refs: ["openai/simple-evals issues #123, #68, #99, #58"]
+    matches_kinds: ["grader_template", "reference_answer"]
+
+external_well_covered:
+  - id: EXT-KNOWN-01
+    what: "SWE-bench Verified insufficient-test reward-hacking and Pass@1 inflation; terminal-agent verifier hackability."
+    refs: ["Rajan arXiv:2606.16062", "SWE-ABS arXiv:2603.00520", "Terminal Wrench arXiv:2604.17596", "hacker-fixer arXiv:2606.08960"]
+    note: "SWE-bench and terminal-agent benchmarks are out of scope here; well covered by others."

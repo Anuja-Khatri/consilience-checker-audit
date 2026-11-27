@@ -1,0 +1,50 @@
+# Pinned commits for every source this build depends on.
+# Statements in this repository concern the published code at these commits only.
+# This file is frozen with the preregistration; later changes are logged in VERIFICATION_LOG.md.
+
+engine:
+  consilience:
+    pypi: "consilience[stress]==0.3.0"
+    repo: "https://github.com/Anuja-Khatri/consilience-core"
+    commit: "cd987cc3643acd5e40b6bf42f246f57288fe61d2"
+    role: "provides the five checks, PASS/BLOCK/ABSTAIN, receipts, consilience verify"
+
+templates:
+  evaluator_stress:
+    repo: "https://github.com/Anuja-Khatri/consilience-benchmarks"
+    commit: "f1895f6fef274679bfb22cbf1c861116704b22b2"
+    path: "evaluator-stress/"
+    role: "structural template for the deterministic legs"
+  judge_check:
+    repo: "https://github.com/Anuja-Khatri/consilience-judge-check"
+    commit: "0136d2055cf5f27d040d162bd89a58fab22835a0"
+    role: "method for the model-grader leg"
+  build_guide:
+    repo: "https://github.com/Anuja-Khatri/consilience-docs"
+    commit: "d4434c98cb9162e79c54376050b3b63ca4359fa7"
+    path: "deepmind/CONSILIENCE_FOR_DEEPMIND_GUIDE.md"
+    role: "the eight tests; external-note format"
+
+targets:
+  # OpenAI's open eval checkers. Cloned read-only, outside this repository.
+  simple_evals:
+    repo: "https://github.com/openai/simple-evals"
+    commit: "652c89d0ca9df547706735883097e9537d40dc47"
+    license: "MIT (Copyright (c) 2024 OpenAI)"
+    note: "README carries a 'no longer updated' banner (July 2025). Reference implementations only."
+    in_scope:
+      - "drop_eval.py (answer extraction + fuzzy_match)"
+      - "mgsm_eval.py (parse_answer last-number-wins)"
+      - "common.py / mmlu_eval.py / gpqa_eval.py (Answer: regex extraction, normalize_response)"
+    model_grader_only:
+      - "browsecomp_eval.py (undefined numeric margin; gpt-4.1)"
+      - "healthbench_eval.py (per-rubric LLM judge)"
+      - "math_eval.py (regex extract, but LLM equality grader)"
+  mle_bench:
+    repo: "https://github.com/openai/mle-bench"
+    commit: "507f92e1138bb6e40dac5c6ee7a6758e6424bf97"
+    license: "see repo LICENSE (confirm during contract authoring)"
+    in_scope:
+      - "experiments/splits/systemcard.txt (30-competition subset)"
+      - "mlebench/grade_helpers.py (shared validation + metrics)"
+      - "mlebench/competitions/<id>/grade.py (per-competition graders)"
