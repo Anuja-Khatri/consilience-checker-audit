@@ -1,0 +1,47 @@
+kind: mleb-grader-contract
+competition_id: example-byo-accuracy
+contract_author: human
+description: >
+  A worked "bring your own grader" example. The grader is examples/byo_grader/my_grader.py
+  (not from OpenAI). It aligns predictions by row position, so the order_invariance check
+  should BLOCK. This shows the checker-audit tool is generic: point harness.grade at any
+  grade(submission, answers) function and run the same checks.
+
+harness:
+  kind: callable
+  grade: "examples/byo_grader/my_grader.py:grade"
+
+source:
+  repo: (local example)
+  commit: n/a
+  grade_path: examples/byo_grader/my_grader.py
+
+id_column: id
+prediction_columns: [pred]
+submission_extra_columns: []
+group_column: null
+
+metric:
+  direction: higher_better
+  bounded: [0, 1]
+
+# answers carry both the grader's column (label) and a dummy copy of the prediction
+# column (pred) so the reference builder can select the submission schema.
+answers:
+  id: [1, 2, 3, 4, 5]
+  columns:
+    label: [0, 1, 0, 1, 1]
+    pred: [0, 1, 0, 1, 1]
+
+leaderboard: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+
+reference:
+  kind: exact          # a perfect submission (pred == label) scores accuracy 1.0
+
+checks:
+  - order_invariance
+  - reject_wrong_length
+  - reject_duplicate_ids
+
+labels: []
+notes: Expected BREAKS on order_invariance (positional alignment ignores the id column).

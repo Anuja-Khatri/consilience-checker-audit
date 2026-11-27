@@ -3,14 +3,18 @@ generated: '2026-11-27'
 note: Every public number is registered here with its n. The report and certificates
   read from this file.
 mleb_leg:
-  n_contracts: 3
-  n_holds: 1
-  n_breaks: 2
+  n_contracts: 30
+  n_holds: 23
+  n_breaks: 6
   n_partial: 0
-  n_block_findings: 3
+  n_block_findings: 9
   breaks:
   - champs-scalar-coupling
+  - jigsaw-unintended-bias-in-toxicity-classification
   - nomad2018-predict-transparent-conductors
+  - osic-pulmonary-fibrosis-progression
+  - smartphone-decimeter-2022
+  - uw-madison-gi-tract-image-segmentation
 simple_evals_leg:
   n_contracts: 3
   n_holds: 0

@@ -21,6 +21,8 @@ from __future__ import annotations
 import argparse
 import copy
 import hashlib
+import importlib
+import importlib.util
 import json
 import logging
 import sys
@@ -33,6 +35,7 @@ import pandas as pd
 import yaml
 
 DEFAULT_MLEB_ROOT = "/home/user/openai-targets/mle-bench"
+ROOT = Path(__file__).resolve().parent.parent
 
 PASS, BLOCK, ABSTAIN = "PASS", "BLOCK", "ABSTAIN"
 
@@ -98,6 +101,70 @@ def _load_grade_fn(mleb_root: str, grade_rel_path: str):
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+# --------------------------------------------------------------------------- #
+# Pluggable grader adapter: bring your own grader (not OpenAI-specific).        #
+# A grader object exposes __call__(submission, answers) -> score|None and       #
+# rank_score(score, leaderboard_df) -> {gold_medal, silver_medal, bronze_medal, #
+# above_median}. The mlebench harness uses the real mle-bench Grader; the        #
+# callable harness wraps any user grade(submission, answers) function.          #
+# --------------------------------------------------------------------------- #
+class CallableGrader:
+    """Adapter for any user grade(submission_df, answers_df) -> float function.
+    An exception on a submission counts as a rejection (returns None), the same
+    convention consilience stress uses. Medals are assigned from a leaderboard by
+    the standard Kaggle percentile rule."""
+
+    def __init__(self, grade_fn, lower_better: bool, round_ndigits=None):
+        self.grade_fn = grade_fn
+        self.lower_better = lower_better
+        self.round_ndigits = round_ndigits
+
+    def __call__(self, submission, answers):
+        try:
+            score = self.grade_fn(submission, answers)
+        except Exception:
+            return None
+        if score is None:
+            return None
+        try:
+            score = float(score)
+        except (TypeError, ValueError):
+            return None
+        return round(score, self.round_ndigits) if self.round_ndigits is not None else score
+
+    def rank_score(self, score, leaderboard):
+        scores = [float(s) for s in leaderboard["score"].tolist()]
+        n = len(scores)
+        ordered = sorted(scores, reverse=not self.lower_better)  # best first
+
+        def at(pos):
+            return ordered[min(max(pos - 1, 0), n - 1)]
+
+        gold_t, silver_t, bronze_t = at(max(1, int(n * 0.1))), at(max(1, int(n * 0.2))), at(max(1, int(n * 0.4)))
+        better = (lambda a, b: a <= b) if self.lower_better else (lambda a, b: a >= b)
+        gold = better(score, gold_t)
+        silver = (not gold) and better(score, silver_t)
+        bronze = (not gold) and (not silver) and better(score, bronze_t)
+        med = sorted(scores)[n // 2] if n else 0.0
+        above = (score < med) if self.lower_better else (score > med)
+        return {"gold_medal": gold, "silver_medal": silver, "bronze_medal": bronze, "above_median": above}
+
+
+def _import_callable(spec_str: str):
+    """Load a grade function from 'module:function' or 'path/to/file.py:function'."""
+    mod_part, fn_name = spec_str.rsplit(":", 1)
+    if mod_part.endswith(".py") or "/" in mod_part:
+        path = Path(mod_part)
+        if not path.is_absolute():
+            path = (ROOT / mod_part).resolve()
+        spec = importlib.util.spec_from_file_location("byo_grader_" + path.stem, path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return getattr(mod, fn_name), path
+    mod = importlib.import_module(mod_part)
+    return getattr(mod, fn_name), (Path(mod.__file__) if getattr(mod, "__file__", None) else None)
 
 
 # --------------------------------------------------------------------------- #
@@ -305,11 +372,24 @@ CHECKS = {
 def run_contract(contract_path: str, mleb_root: str = DEFAULT_MLEB_ROOT) -> dict:
     contract_path = Path(contract_path)
     contract = yaml.safe_load(contract_path.read_text())
-    Grader, _InvalidSubmissionError, gh_path = _install_mlebench(mleb_root)
-    grade_fn, grade_path = _load_grade_fn(mleb_root, contract["source"]["grade_path"])
 
-    grader = Grader(name=contract["competition_id"], grade_fn="builtins:len")
-    grader.grade_fn = grade_fn  # the real published grade function
+    harness = contract.get("harness", {"kind": "mlebench"})
+    kind = harness.get("kind", "mlebench")
+    if kind == "mlebench":
+        # The OpenAI demonstration: run the real mle-bench Grader + rank_score pipeline.
+        Grader, _InvalidSubmissionError, gh_path = _install_mlebench(mleb_root)
+        grade_fn, grade_path = _load_grade_fn(mleb_root, contract["source"]["grade_path"])
+        grader = Grader(name=contract["competition_id"], grade_fn="builtins:len")
+        grader.grade_fn = grade_fn  # the real published grade function
+        source_hashes = {"grade_file_sha256": _sha256(grade_path), "grade_helpers_sha256": _sha256(gh_path)}
+    elif kind == "callable":
+        # Bring your own grader: any grade(submission_df, answers_df) -> float.
+        grade_fn, grade_path = _import_callable(harness["grade"])
+        lower_better = contract.get("metric", {}).get("direction", "lower_better") == "lower_better"
+        grader = CallableGrader(grade_fn, lower_better=lower_better, round_ndigits=harness.get("round"))
+        source_hashes = {"grade_file_sha256": _sha256(grade_path) if grade_path else None}
+    else:
+        raise ValueError(f"unknown harness kind: {kind!r} (use 'mlebench' or 'callable')")
 
     answers = build_answers(contract)
     leaderboard = build_leaderboard(contract)
@@ -353,8 +433,8 @@ def run_contract(contract_path: str, mleb_root: str = DEFAULT_MLEB_ROOT) -> dict
         "group_column": contract.get("group_column"),
         "prediction_range": contract.get("prediction_range"),
         "contract_sha256": _sha256(contract_path),
-        "grade_file_sha256": _sha256(grade_path),
-        "grade_helpers_sha256": _sha256(gh_path),
+        "harness_kind": kind,
+        **source_hashes,
         "seed": 0,
         "synthetic_answers": _to_jsonable(answers),
         "synthetic_leaderboard": list(contract["leaderboard"]),

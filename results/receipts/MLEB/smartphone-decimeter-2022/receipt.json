@@ -16,6 +16,7 @@
   "group_column": null,
   "prediction_range": null,
   "contract_sha256": "055d9e7d1b32f982eab08c65decb5ac2b217e66bd3a0216f262ecaa153b85fd6",
+  "harness_kind": "mlebench",
   "grade_file_sha256": "1c8e6b70737610aa0ae965e27771cbd615d477e6c66fb4f8f2d79dc8ebae00b0",
   "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
   "seed": 0,
@@ -170,5 +171,5 @@
     "MLEB-KNOWN-09"
   ],
   "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
-  "created": "2026-11-27T09:09:06.665138+00:00"
+  "created": "2026-11-27T09:15:57.610964+00:00"
 }

@@ -15,6 +15,7 @@
   "group_column": null,
   "prediction_range": null,
   "contract_sha256": "83be310f05a43a65a1f584c91abbcfe52e6c7d9c9370456315eade3cf31742d8",
+  "harness_kind": "mlebench",
   "grade_file_sha256": "9d002aae608d26d07e6bf799e9f061a69263b4de32acff4597d92341794786f7",
   "grade_helpers_sha256": "7d55512a893699b2e17041f3cd3bd0c2aba955c73f50872b3c69238546b87005",
   "seed": 0,
@@ -64,5 +65,5 @@
   "verdict": "HOLDS",
   "labels": [],
   "limits": "Synthetic answers test the grader's validation and arithmetic, not real Kaggle data. A HOLDS is evidence on the checks run, not a proof of correctness.",
-  "created": "2026-11-27T09:08:53.103861+00:00"
+  "created": "2026-11-27T09:15:56.369073+00:00"
 }

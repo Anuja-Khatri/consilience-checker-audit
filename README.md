@@ -1,59 +1,98 @@
 # consilience-checker-audit
 
-**An independent, preregistered, receipted integrity check of the grading code behind evaluations that OpenAI publishes as open source.**
+**A reusable tool for checker-integrity audits: state what a grader should accept, attack it before anyone optimises against it, and get a receipt. Deterministic graders and model-judge extractors. The evaluations OpenAI publishes as open code are the first demonstration.**
 
-Status: in progress. Nothing here is final until `PREREGISTRATION.md` is marked FINAL and `results/REPORT.md` exists.
+This is a generic Consilience capability, not a one-off script. Anyone can clone it and run it on their own checkers, including ones they cannot release. OpenAI's public eval graders are the worked example that ships with it.
+
+Status: the suite, the OpenAI demonstration, and the report are complete. See `results/REPORT.md`.
 
 ---
 
-## What this is
+## What a checker is, and why audit it
 
-Evaluations rest on checkers: the graders, reward functions, test suites and model judges that turn a model's output into a score. If a checker accepts an invalid answer, trusts a number the answer reports about itself, or flips its verdict on a rounding error, then a search run against it, or a decision made on it, can be wrong in a way no one sees.
+Evaluations rest on checkers: the graders, reward functions, test suites and model judges that turn a model's output into a score. If a checker accepts an invalid answer, trusts a number the answer reports about itself, grades by row position, or flips its verdict on a rounding error, then a search run against it, or a safety decision made on it, can be wrong in a way no one sees. This tool finds those gaps and proves each one with a re-runnable receipt.
 
-This repository does one thing. It takes checkers that OpenAI has published as open code, states what each one should accept from the public task description alone, attacks each one before anyone optimises against it, and reports what holds, what breaks, and the fix. Every result is re-runnable from a receipt.
+## Quick start (clone and run)
 
-It covers two kinds of checker:
-- **Deterministic graders** (code): checked with `consilience stress`.
-- **Model graders** (LLM judges): checked with the judge-check method, if budget allows.
+```bash
+git clone https://github.com/Anuja-Khatri/consilience-checker-audit
+cd consilience-checker-audit
+python -m venv .venv && . .venv/bin/activate
+pip install -e .            # or: pip install -r requirements.txt
 
-## What this is not
+checker-audit run-all       # run every contract, write receipts
+checker-audit verify        # independent second-way verification
+checker-audit report        # numbers lock, certificates, coverage
+```
 
-- It is not a bug count. A clean result on a checker that matters, reported with its coverage, is a real outcome.
-- It says nothing about OpenAI's internal systems, scores, rankings or competence. Every statement is about published code at a named commit only.
-- It is not a security boundary and it does not run anyone's model for them.
+No install needed either: `python cli.py run-all` works from a clone.
 
-## How it reuses existing work
+To reproduce the OpenAI demonstration you also need the two target repos cloned at the pinned commits in `SOURCES.yaml`, and the engine pinned in `requirements.txt`. A fresh-clone reproduction is in `results/REPORT.md`.
 
-This repository is an application of the Consilience engine, not a fork of it. It depends on the published engine and reuses its method, verdict set, receipt format and verifier:
+## Check your own grader
 
-- `consilience[stress]` (the engine, from PyPI; pinned in `requirements.txt`) provides the five checks, the `PASS` / `BLOCK` / `ABSTAIN` verdicts, the receipt format, and `consilience verify`.
-- The structure follows the `evaluator-stress` benchmark in [consilience-benchmarks](https://github.com/Anuja-Khatri/consilience-benchmarks).
-- The model-grader leg follows the method in [consilience-judge-check](https://github.com/Anuja-Khatri/consilience-judge-check).
+Point a contract at any `grade(submission, answers)` function. Nothing about the tool is OpenAI-specific. See the worked example in `examples/byo_grader/` and the guide in `GRADERS.md`.
 
-The pinned commits of the engine and of every audited target are in `SOURCES.yaml`.
+```yaml
+# a contract for your own grader
+harness:
+  kind: callable
+  grade: "path/to/your_grader.py:grade"
+id_column: id
+prediction_columns: [pred]
+metric: { direction: higher_better }
+answers: { id: [1,2,3,4,5], columns: { label: [0,1,0,1,1], pred: [0,1,0,1,1] } }
+leaderboard: [0.5, 0.6, 0.7, 0.8, 0.9, 0.95]
+reference: { kind: exact }
+checks: [order_invariance, reject_wrong_length, reject_duplicate_ids]
+```
+
+```bash
+checker-audit run examples/byo_grader/contract.yaml
+# example-byo-accuracy: BREAKS   (order_invariance: positional grading ignores the id column)
+```
+
+## The checks
+
+Deterministic graders (`src/mleb_check.py`, harness `mlebench` or `callable`):
+- **reject_nonfinite** — NaN or infinite predictions accepted and winning a medal.
+- **order_invariance** — the same submission in a different row order scores differently.
+- **reject_wrong_length** — a short submission accepted and winning a medal.
+- **reject_duplicate_ids** — a duplicate id accepted and changing the score.
+- **range** — an out-of-range prediction accepted and winning a medal.
+- **no_free_gold_subset_perfect** — a submission perfect on one aggregation group only winning a medal.
+
+Model-judge answer extractors (`src/extract_check.py`): crafted probes at known validity test extraction leniency and brittleness (hedges, substring matches, sign and locale parsing, first-vs-final answer).
+
+Every run writes a receipt (verdict, counterexample, input hashes). `check_independent.py` re-derives every finding a second way, importing nothing from the checker. `src/build_report.py` locks the numbers and writes one certificate per checker.
+
+## How it reuses the Consilience engine
+
+This repository is an application of the Consilience method, not a fork. It reuses the engine's `PASS` / `BLOCK` / `ABSTAIN` verdicts, the receipt and `verify` discipline, the independent second way, the numbers lock and the preregistration discipline. The pilot showed that the `consilience stress` attack generator does not cover tabular-grader or text-extractor flaws, so the tool adds those checks and files them upstream as a proposed engine capability (`research/06-proposed-engine-capability.md`). It depends on `consilience[stress]` and does not reimplement any check the engine already has.
+
+## The OpenAI demonstration
+
+The suite is run on the graders behind evaluations OpenAI publishes:
+- **MLE-bench** system-card subset (30 competition graders in `experiments/splits/systemcard.txt`), reported under AI self-improvement in OpenAI system cards.
+- **simple-evals** deterministic answer extractors (DROP, MGSM, MMLU).
+
+Results, limits first, are in `results/REPORT.md`, with a certificate per checker in `results/certificates/` and a receipt per checker in `results/receipts/`. Findings that match an already-filed public issue are reported as confirmations with their citation (`LABELS.yaml`); candidate-new findings are marked as such.
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `STRATEGY.md` | The goal, the tests every part must pass, the scope and the rules. Read first. |
-| `SPEC.md` | The technical specification: method, contracts, checks, reuse, safety, budget. |
+| `STRATEGY.md`, `SPEC.md`, `PRODUCT_GUIDELINES.md` | The goal, the method, the output format. |
 | `PREREGISTRATION.md` | The protocol, committed before any scored run. |
-| `PRODUCT_GUIDELINES.md` | The expected output format: the report and the per-checker certificate. |
-| `DECISIONS.md` | Every non-trivial decision, with its reason. |
-| `SOURCES.yaml` | Pinned commits of the engine and of each audited target. |
-| `LABELS.yaml` | Public issues already known, so a finding that matches one is not called new. |
-| `CONTRACTS.sha256` | The frozen hash of every contract and glue file, written before any run. |
-| `contracts/<SET>/<slug>/` | One folder per checker: `contract.yaml`, glue, reference, vendored checker, `COVERAGE.md`. |
-| `run_benchmark.py`, `check_independent.py` | The runner, and the independent second-way checker that imports nothing from the engine. |
-| `research/` | The research notes behind the scope, one file per question, with sources. |
-| `results/REPORT.md` | The integrity report: limits first, what holds, findings with receipts and fixes. |
-| `results/certificates/` | One page per checker: scope, coverage, checks run, result, limits. |
-| `results/receipts/` | Every receipt. `consilience verify` re-runs each one. |
-| `VERIFICATION_LOG.md` | Every deviation, fix and re-check. |
-| `CORRECTIONS.md` | Corrections after the fact. |
-| `DISCLOSURE_NOTE.md` | A short note to OpenAI, one finding per entry, with receipt and patch. Anu sends it. |
-| `APPLICATION_LINES.md` | Candidate one-line mentions, each true to the numbers lock. |
+| `GRADERS.md` | How to write a contract for your own grader. |
+| `cli.py`, `src/` | The tool. |
+| `contracts/MLEB/`, `contracts/SE/` | One contract per checker (the OpenAI demonstration). |
+| `examples/byo_grader/` | A non-OpenAI worked example. |
+| `check_independent.py` | The independent second-way verifier. |
+| `results/REPORT.md`, `results/certificates/`, `results/receipts/` | Report, certificates, receipts. |
+| `results/numbers.lock.yaml` | Every public number with its n. |
+| `DISCLOSURE_NOTE.md`, `APPLICATION_LINES.md` | The maintainer note (Anu sends it) and the application lines. |
+| `VERIFICATION_LOG.md`, `CORRECTIONS.md`, `DECISIONS.md` | Deviations, corrections, decisions. |
 
 ## AI assistance
 
@@ -61,8 +100,8 @@ The code and text in this repository were written with an AI coding assistant un
 
 ## Disclosure
 
-Findings concern published code at a named commit. Any finding goes to OpenAI first, through its coordinated vulnerability disclosure route, before anything is made public. All outreach is done by Anuja Khatri. This repository opens no issues, pull requests or posts on any external project.
+Findings concern published code at a named commit. Any finding goes to the maintainers first, before anything is made public; a grader-correctness bug is an ordinary bug, not a security vulnerability (see `research/01-system-cards.md`). All outreach is done by Anuja Khatri. This repository opens no issues, pull requests or posts on any external project.
 
 ## License
 
-Code in this repository: MIT (see `LICENSE`), matching the Consilience engine. Any third-party checker code vendored under `contracts/*/` keeps its own license and carries a provenance header; see that file and `SOURCES.yaml`. The audited targets at their pinned commits: simple-evals is MIT; mle-bench carries its own `LICENSE`, confirmed during contract authoring.
+MIT (see `LICENSE`), matching the Consilience engine. Third-party checker code vendored under `contracts/*/` keeps its own license and carries a provenance header; see `SOURCES.yaml`.
