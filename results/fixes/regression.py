@@ -36,28 +36,35 @@ def ok(name, cond):
 all_ok = True
 
 # ---------------------------------------------------------------- champs F-MLEB-1
-print("F-MLEB-1 champs-scalar-coupling: reject a non-finite aggregate score")
+print("F-MLEB-1 champs-scalar-coupling: apply the floor the description states (max(mae, 1e-9))")
 champs = grade_of("champs-scalar-coupling")
+_g = champs.__globals__  # reuse the grader's own prepare_for_grading and mean_absolute_error
+FLOOR_SCORE = np.log(1e-9)  # ~ -20.7232, the best score description.md line 48 states
 ans = pd.DataFrame({"id": [0, 1, 2, 3, 4, 5],
                     "type": ["1JHC", "1JHC", "1JHC", "2JHH", "2JHH", "2JHH"],
                     "scalar_coupling_constant": [80.0, 84.0, 90.0, 10.0, 12.0, 15.0]})
 
 
 def champs_patched(sub, a):
-    s = champs(sub, a)
-    if s is None or not np.isfinite(s):  # the fix: reject a non-finite aggregate
-        return None
-    return s
+    # identical to the published grade(), with the documented 1e-9 floor on each group's MAE
+    merged = _g["prepare_for_grading"](sub, a, "scalar_coupling_constant")
+    log_maes = []
+    for _name, group in merged.groupby("type"):
+        mae = _g["mean_absolute_error"](group["scalar_coupling_constant_true"], group["scalar_coupling_constant_pred"])
+        log_maes.append(np.log(max(mae, 1e-9)))
+    return float(np.mean(log_maes))
 
 
 valids = [ans[["id", "scalar_coupling_constant"]].assign(scalar_coupling_constant=ans["scalar_coupling_constant"] + d)
           for d in (0.5, 1.0, 3.0, 7.0)]
 same = all(np.isclose(champs(v, ans), champs_patched(v, ans)) for v in valids)
-all_ok &= ok("valid submissions score identically under the patch", same)
+all_ok &= ok("valid submissions score identically under the patch (the floor never binds)", same)
 exploit = ans[["id", "scalar_coupling_constant"]].copy()
 exploit.loc[exploit.index[3:], "scalar_coupling_constant"] = 999.0  # perfect on 1JHC only
-all_ok &= ok("the -inf one-perfect-group exploit is rejected by the patch (None)", champs_patched(exploit, ans) is None)
+patched_exploit = champs_patched(exploit, ans)
 all_ok &= ok("(the unpatched grader returned -inf on the exploit)", not np.isfinite(champs(exploit, ans)))
+all_ok &= ok("the patched grader keeps the score finite and >= the stated -20.7232 floor",
+             np.isfinite(patched_exploit) and patched_exploit >= FLOOR_SCORE - 1e-9)
 
 # ---------------------------------------------------------------- nomad2018 F-MLEB-3
 print("F-MLEB-3 nomad2018: align by id (merge) instead of grading by row position")

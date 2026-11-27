@@ -15,18 +15,22 @@ findings:
     labels: []
     severity: medium
     summary: >
-      The metric is the mean over coupling types of log(MAE_type), which has no floor: when a
-      within-type MAE is zero, log(MAE) is -inf and the aggregate is -inf, below any finite
-      score the competition's own metric can otherwise produce, and rank_score reads it as
-      gold. So the grader drops the floor its own metric states. Practical exploitability is
-      low: it needs an exact match on a whole coupling type, which is unlikely in a real
-      submission. The finding is the unbounded-below score, not a likely gaming route.
+      The competition's own description states a floor the grader does not apply. In
+      mlebench/competitions/champs-scalar-coupling/description.md (line 48): "the MAE for any
+      group has a floor of 1e-9, so that the minimum (best) possible score for perfect
+      predictions is approximately -20.7232" (ln(1e-9) = -20.7232). The grader (grade.py,
+      log_mae) takes log of the raw per-type MAE with no floor, so a zero within-type MAE gives
+      log(0) = -inf and the aggregate is -inf, below the stated -20.7232 floor. Practical
+      exploitability is low (it needs an exact match on a whole coupling type); the defensible
+      finding is that the grader produces scores below the floor its own description specifies.
     receipt: results/receipts/MLEB/champs-scalar-coupling/receipt.json
     fix: >
-      Reject a non-finite aggregate score in the grader before ranking, or clamp each per-type
-      MAE below at a small epsilon before the log, so the score keeps the floor the metric states.
+      Apply the floor the description states: max(mae, 1e-9) before the log (floor each per-type
+      MAE at 1e-9). This bounds the best score at about -20.7232 as specified, and leaves every
+      legitimate score unchanged (real MAEs are far above 1e-9).
+    cite: "openai/mle-bench mlebench/competitions/champs-scalar-coupling/description.md, line 48 (commit 507f92e)."
     distinct_from: "The known duplicate-id issue #156 (MLEB-KNOWN-06) is a different mechanism on the same grader."
-    severity_note: "Downgraded from high to medium after review: low practical exploitability; the point is the metric losing its stated floor. See CORRECTIONS.md."
+    severity_note: "Downgraded from high to medium after review: low practical exploitability; the point is the score going below the floor the description states. See CORRECTIONS.md."
 
   - id: F-MLEB-2
     checker: champs-scalar-coupling
@@ -47,12 +51,13 @@ findings:
     check: order_invariance
     status: new
     labels: []
-    severity: high
+    severity: medium
     summary: >
       The grader reads the two prediction columns by row position and ignores the id
       column, so the same submission in a different row order scores differently.
     receipt: results/receipts/MLEB/nomad2018-predict-transparent-conductors/receipt.json
     fix: "Merge the submission and answers on the id column before computing RMSLE."
+    severity_note: "Medium: it mis-scores a submission by row order, but is not a route to a free medal (unlike uw-madison, which stays high). Downgraded for label consistency; see CORRECTIONS.md."
 
   - id: F-MLEB-4
     checker: osic-pulmonary-fibrosis-progression

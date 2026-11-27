@@ -13,3 +13,9 @@ regenerated and the change noted in `VERIFICATION_LOG.md`.
 5. **Coverage of the 23 "hold" graders.** The report now states clearly that "HOLD" is read with its coverage: the number of applicable checks differs per grader (some were exercised by as few as two), and no live model-judge grader was checked. Each grader's exact check set is in its certificate.
 
 None of these changed a locked count: 30 MLE-bench contracts (23 hold, 6 break, 1 unrunnable), 3 simple-evals extractors break, 10 findings (3 candidate-new, 7 confirmations), 17 of 17 BLOCKs confirmed the independent second way.
+
+### 2026-11-27. Three further corrections (second review pass).
+
+6. **champs floor now cited, and the fix corrected.** The report and `findings.yaml` did not say where the floor comes from. It is in OpenAI's own repo: `mlebench/competitions/champs-scalar-coupling/description.md`, line 48, which states each group's MAE has a floor of `1e-9` (best score about `-20.7232`). The grader does not apply it. The citation is now in `findings.yaml`, `results/REPORT.md` and `DISCLOSURE_NOTE.md`, and the proposed fix is changed from "clamp at a small epsilon" to the stated `max(mae, 1e-9)`. `results/fixes/FIXES.md` and `results/fixes/regression.py` updated to demonstrate that fix (valid scores unchanged; the exploit's `-inf` becomes a finite score no lower than `-20.7232`). This turns the point from opinion into a fact checkable in OpenAI's own file.
+7. **`DISCLOSURE_NOTE.md` champs wording** still said "it wins gold" with no floor and no low-exploitability note, contradicting correction 2. Rewritten to match.
+8. **nomad2018 severity high -> medium.** It mis-scores a submission by row order but is not a route to a free medal, so medium is more defensible and consistent with the other labels. uw-madison stays high (a short submission really can win gold there).

@@ -7,25 +7,27 @@ regression heavy, so the patch and its regression plan are stated, not run here)
 All three were confirmed: `python -I results/fixes/regression.py` prints ALL
 REGRESSIONS PASS.
 
-## F-MLEB-1 champs-scalar-coupling (reject a non-finite aggregate score)
+## F-MLEB-1 champs-scalar-coupling (apply the floor the description states)
 
-The metric is `mean(log(MAE_per_type))`. A submission perfect on one type gives
-that type MAE 0, so `log(0) = -inf` and the mean is `-inf`, which wins gold.
+The competition's `description.md` (line 48) states each group's MAE has a floor of
+`1e-9`, so the best possible score is about `-20.7232`. The grader's `log_mae` takes
+`log` of the raw MAE with no floor, so a zero within-type MAE gives `log(0) = -inf`,
+below the stated floor.
 
-Minimal patch (in `grade`, after computing `score`):
+Minimal patch (in `log_mae`), applying the documented floor:
 
 ```python
-score = np.mean(log_maes)
-if not np.isfinite(score):
-    raise InvalidSubmissionError("non-finite score (a zero within-type MAE)")
-return score
+def log_mae(y_true, y_pred):
+    mae = mean_absolute_error(y_true, y_pred)
+    return np.log(max(mae, 1e-9))   # floor per description.md line 48
 ```
 
-Regression (in `regression.py`): four valid submissions score identically before
-and after; the one-perfect-group exploit, which returned `-inf` and won gold, is
-now rejected. The broader property that `mean(log(MAE))` over-rewards a single
-near-perfect type is a metric-design question beyond this validation fix; the
-patch closes the exact `-inf` medal path that the check demonstrates.
+Regression (in `regression.py`): valid submissions score identically before and
+after (real MAEs are far above `1e-9`, so the floor never binds), and the
+one-perfect-group case that returned `-inf` now returns a finite score no lower than
+the stated `-20.7232` floor. The broader property that `mean(log(MAE))` rewards a
+single near-perfect type is a metric-design question beyond this fix; the patch
+restores the floor the description specifies.
 
 ## F-MLEB-3 nomad2018-predict-transparent-conductors (align by id)
 

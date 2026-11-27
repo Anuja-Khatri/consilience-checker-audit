@@ -24,12 +24,14 @@ a one-line fix.
 
 ## Candidate-new (we did not find these in your issue trackers)
 
-1. **champs-scalar-coupling.** The metric is the mean over coupling types of
-   `log(MAE_type)`. A submission that predicts one type exactly and anything
-   elsewhere drives that type's MAE to zero, so `log(MAE) = -inf`, the mean is
-   `-inf`, and it wins gold. Fix: reject a non-finite aggregate score before
-   ranking (patch and regression in `results/fixes/FIXES.md`). This is a different
-   mechanism from the known duplicate-id issue #156.
+1. **champs-scalar-coupling.** The competition's own `description.md` (line 48)
+   states that each group's MAE has a floor of `1e-9`, giving a best possible score
+   of about `-20.7232`. The grader (`grade.py`, `log_mae`) does not apply that floor:
+   it takes `log` of the raw MAE, so a zero within-type MAE gives `log(0) = -inf`,
+   below the stated floor. Practical exploitability is low (it needs an exact match on
+   a whole coupling type); the point is that the score can go below the floor the
+   description specifies. Fix: apply the stated floor, `max(mae, 1e-9)`, before the log.
+   (Distinct from the known duplicate-id issue #156.)
 
 2. **nomad2018-predict-transparent-conductors.** The grader reads the two
    prediction columns by row position and ignores the id column, so the same
