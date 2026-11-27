@@ -81,4 +81,4 @@ List only the checks your grader's shape supports. A clean grader that holds on 
 
 ## 5. Text-answer graders
 
-For a model-judge answer extractor (text in, correct/incorrect out), use the extractor checker instead: vendor the extractor functions and write probes at known validity. See `contracts/SE/drop/` for a worked example.
+For a deterministic answer extractor (the code that reads a final answer out of a model's text response and decides correct/incorrect), use the extractor checker instead: vendor the extractor functions and write probes at known validity. See `contracts/SE/drop/` for a worked example. Checking a *live* LLM-as-judge grader is a separate, not-yet-built extension.

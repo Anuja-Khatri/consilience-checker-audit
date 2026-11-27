@@ -13,17 +13,20 @@ findings:
     check: no_free_gold_subset_perfect
     status: new
     labels: []
-    severity: high
+    severity: medium
     summary: >
-      The metric is the mean over coupling types of log(MAE_type). A submission that
-      predicts one coupling type exactly and garbage elsewhere sends that type's MAE to
-      zero, so log(MAE) is -inf and the mean is -inf, which wins a gold medal. A trivially
-      partial submission beats every real one.
+      The metric is the mean over coupling types of log(MAE_type), which has no floor: when a
+      within-type MAE is zero, log(MAE) is -inf and the aggregate is -inf, below any finite
+      score the competition's own metric can otherwise produce, and rank_score reads it as
+      gold. So the grader drops the floor its own metric states. Practical exploitability is
+      low: it needs an exact match on a whole coupling type, which is unlikely in a real
+      submission. The finding is the unbounded-below score, not a likely gaming route.
     receipt: results/receipts/MLEB/champs-scalar-coupling/receipt.json
     fix: >
-      Clamp each per-type MAE below at a small epsilon before the log, or reject a
-      non-finite aggregate score in the grader before ranking.
+      Reject a non-finite aggregate score in the grader before ranking, or clamp each per-type
+      MAE below at a small epsilon before the log, so the score keeps the floor the metric states.
     distinct_from: "The known duplicate-id issue #156 (MLEB-KNOWN-06) is a different mechanism on the same grader."
+    severity_note: "Downgraded from high to medium after review: low practical exploitability; the point is the metric losing its stated floor. See CORRECTIONS.md."
 
   - id: F-MLEB-2
     checker: champs-scalar-coupling
@@ -108,7 +111,7 @@ findings:
     receipt: results/receipts/MLEB/uw-madison-gi-tract-image-segmentation/receipt.json
     fix: "Align masks by id (merge, not zip) and require the submission to cover every answer id."
 
-  # -------- simple-evals (model-judge answer extractors) --------
+  # -------- simple-evals (deterministic answer extractors) --------
   - id: F-SE-1
     checker: simple-evals/drop
     leg: simple-evals

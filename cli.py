@@ -73,7 +73,8 @@ def cmd_run_all(args):
 
 
 def cmd_verify(args):
-    sys.exit(subprocess.call([sys.executable, "-I", str(ROOT / "check_independent.py")]))
+    cmd = [sys.executable, "-I", str(ROOT / "check_independent.py"), "--mleb-root", args.mleb_root]
+    sys.exit(subprocess.call(cmd))
 
 
 def cmd_report(args):
@@ -92,7 +93,9 @@ def main():
     pa = sub.add_parser("run-all", help="run every contract and write receipts")
     pa.add_argument("--mleb-root", default=mleb_check.DEFAULT_MLEB_ROOT)
     pa.set_defaults(func=cmd_run_all)
-    sub.add_parser("verify", help="independent second-way verification").set_defaults(func=cmd_verify)
+    pv = sub.add_parser("verify", help="independent second-way verification")
+    pv.add_argument("--mleb-root", default=mleb_check.DEFAULT_MLEB_ROOT)
+    pv.set_defaults(func=cmd_verify)
     sub.add_parser("report", help="numbers lock + certificates").set_defaults(func=cmd_report)
     args = ap.parse_args()
     args.func(args)

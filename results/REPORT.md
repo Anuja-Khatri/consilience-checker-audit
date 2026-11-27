@@ -32,7 +32,9 @@ Two legs, on OpenAI's published checker code at pinned commits (`SOURCES.yaml`):
 
 ## 3. What holds
 
-**23 of the 30 MLE-bench system-card graders HOLD on every check run.** This is the main result and it is a real one: these graders validate their input and align by id as they should, within the checks probed. They include the well-guarded probability graders (petfinder's explicit [1,100] range, hms-harmful-brain's `verify_valid_probabilities` and clip, spooky's sum-to-1 and range), the helper-only accuracy and AUROC graders (cassava, mlsp-2013-birds), and the string-prediction graders whose length and id checks reject malformed submissions (billion-word, bms, whale, hotel-id, imet, kuzushiji, tweet-sentiment). The full per-grader verdicts and the checks behind each are in `results/certificates/`.
+**23 of the 30 MLE-bench system-card graders HOLD on every check run.** This is the main result and it is a real one: these graders validate their input and align by id as they should, within the checks probed. They include the well-guarded probability graders (petfinder's explicit [1,100] range, hms-harmful-brain's `verify_valid_probabilities` and clip, spooky's sum-to-1 and range), the helper-only accuracy and AUROC graders (cassava, mlsp-2013-birds), and the string-prediction graders whose length and id checks reject malformed submissions (billion-word, bms, whale, hotel-id, imet, kuzushiji, tweet-sentiment).
+
+**Read "HOLD" with its coverage: it is not a uniform full battery.** The number of checks that apply differs by grader. The six checks assume a numeric-prediction, id-keyed submission; where a grader's prediction is a non-numeric string (an RLE mask, a list of ids) only the shape checks apply, so several graders were exercised by as few as two checks (order and length). A HOLD means "held on the checks that apply to that grader", with the exact set listed in that grader's certificate (`results/certificates/`), not that it passed all six. And no live model-judge (LLM-as-judge) grader was checked at all (section 2). The verdicts and the per-grader check set are in `results/certificates/`.
 
 ## 4. Findings
 
@@ -40,11 +42,13 @@ Two legs, on OpenAI's published checker code at pinned commits (`SOURCES.yaml`):
 
 "Candidate-new" means we did not find the finding in the target's public issue tracker. The trackers are large and we did not search them exhaustively, so novelty is stated conservatively.
 
+**How these were found, and the order of events (a preregistration deviation, stated plainly).** These findings were found by reading and probing the grader code first, then confirmed with frozen contracts and receipts. They are not blind preregistered discoveries. The champs and nomad2018 findings came out of a pilot that attacked those two graders about 20 minutes before the contracts were frozen, which is a deviation from the preregistration's "no grader is attacked before the contracts are frozen"; it is logged in `VERIFICATION_LOG.md`. Each contract also carries an "expected to hold/break" note written from reading the code. The preregistration's role here was narrower than a blind discovery: it froze the contracts and the known-issues list before the scored runs, and required the independent second way. All scored receipts were generated after the freeze.
+
 ### Candidate-new
 
 | Grader | What breaks | Receipt |
 |---|---|---|
-| **champs-scalar-coupling** | A submission perfect on one coupling type only drives the mean of `log(MAE_per_type)` to `-inf`, winning gold. A trivially partial submission beats every real one. Distinct mechanism from the known duplicate-id issue #156. | `results/receipts/MLEB/champs-scalar-coupling/receipt.json` |
+| **champs-scalar-coupling** (medium) | The metric `mean(log(MAE_per_type))` has no floor: a zero within-type MAE sends `log(MAE)` and the aggregate to `-inf`, below any finite score the competition's own metric can produce, and `rank_score` reads that as gold. The grader drops the floor its own metric states. Practical exploitability is low (it needs an exact match on a whole coupling type). Distinct mechanism from the known duplicate-id issue #156. | `results/receipts/MLEB/champs-scalar-coupling/receipt.json` |
 | **nomad2018-predict-transparent-conductors** | The grader reads the two prediction columns by row position and ignores the id column, so the same submission in a different row order scores differently. | `results/receipts/MLEB/nomad2018-predict-transparent-conductors/receipt.json` |
 | **uw-madison-gi-tract-image-segmentation** | The Dice term pairs masks by row position with `zip` and checks neither length nor the id set, so (a) row order changes the score and (b) a submission missing its last rows is silently truncated and, being perfect on what it provides, wins gold. | `results/receipts/MLEB/uw-madison-gi-tract-image-segmentation/receipt.json` |
 
