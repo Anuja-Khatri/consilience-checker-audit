@@ -106,7 +106,7 @@ Results, limits first, are in `results/REPORT.md`, with a certificate per checke
 | `check_independent.py` | The independent second-way verifier. |
 | `results/REPORT.md`, `results/certificates/`, `results/receipts/` | Report, certificates, receipts. |
 | `results/numbers.lock.yaml` | Every public number with its n. |
-| `DISCLOSURE_NOTE.md`, `APPLICATION_LINES.md` | The maintainer note (Anu sends it) and the application lines. |
+| `DISCLOSURE_NOTE.md` | A draft note to the graders' maintainers (the author sends it; nothing is posted by the tool). |
 | `VERIFICATION_LOG.md`, `CORRECTIONS.md`, `DECISIONS.md` | Deviations, corrections, decisions. |
 
 ## AI assistance

@@ -142,4 +142,4 @@ The build is done when:
 - the numbers lock matches the runs and the certificates and report read from it;
 - the report states coverage and limits first, and a clean result is reported as clean.
 
-A clean outcome (graders hold on every check, with coverage stated) is an acceptable and complete result. The method and its receipts are the work sample, not a count of findings.
+A clean outcome (graders hold on every check, with coverage stated) is an acceptable and complete result. The method and its receipts are the deliverable, not a count of findings.

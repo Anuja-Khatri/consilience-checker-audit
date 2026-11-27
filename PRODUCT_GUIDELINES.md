@@ -60,10 +60,6 @@ Examples of locked numbers: how many of the 30 MLE-bench system-card graders wer
 
 A short, plain note to OpenAI, one entry per confirmed finding. Each entry: the checker and pinned commit, what the check found, the receipt that re-runs it, and the proposed patch with the proof that valid submissions still pass. It leads with the fact that deterministic graders are a strength to harden, not a failure. Anu sends it, through OpenAI's coordinated vulnerability disclosure route. Nothing is posted publicly before OpenAI has had the time the policy asks for.
 
-## 6. The application lines: `APPLICATION_LINES.md`
-
-Two or three candidate one-line mentions for Anu's application, each true to the numbers lock, each in a plain casual voice, no number that is not locked. For example, in the shape: "I ran the same integrity checks on the MLE-bench graders OpenAI reports in its system cards: N of the 30 held on every check, M had an issue, all sent to OpenAI first with a patch." The real numbers are filled only from the lock, after the runs.
-
-## 7. House style for all written output
+## 6. House style for all written output
 
 Plain short sentences. No em dashes. No hype words. Limits first. Every claim about third-party code names the commit. No model identifier in any committed file. AI assistance disclosed in every README and report.

@@ -10,13 +10,13 @@ Written 2026-11-27. Autonomous build; decisions are logged in `DECISIONS.md`.
 
 Take the graders behind the evaluations OpenAI publishes as open code, state what each one should accept, attack each one before anyone optimises against it, and report what holds, what breaks, and the fix, all re-runnable from receipts.
 
-Said to the reader at the OpenAI Foundation: "I took the graders behind the evals in your own system cards, stated what each one should accept, attacked them before anyone optimises against them, and here is what holds, what breaks, and the fix, all re-runnable from receipts."
+In one line: take the graders behind the evals in a lab's own system cards, state what each should accept, attack them before anyone optimises against them, and show what holds, what breaks, and the fix, all re-runnable from receipts.
 
 ## 2. Why this build exists
 
-Evaluations rest on checkers. The security of those checkers is the thing most often left unexamined, and the place where a reward hack or a fake record starts. A small, careful, receipted audit of OpenAI's own public eval checkers is a work sample that shows the method working at small scale on the reader's own instruments.
+Evaluations rest on checkers. The security of those checkers is the thing most often left unexamined, and the place where a reward hack or a fake record starts. A small, careful, receipted audit of a lab's own public eval checkers is a demonstration that the method works at small scale on instruments people already use.
 
-What success is: a clean method applied honestly, with coverage stated, on checkers that matter. A clean result is a real result. The integrity of the method is the work sample, not a count of bugs. Do not stretch to manufacture findings.
+What success is: a clean method applied honestly, with coverage stated, on checkers that matter. A clean result is a real result. The integrity of the method is the deliverable, not a count of bugs. Do not stretch to manufacture findings.
 
 ## 3. What is built, as a product
 
@@ -72,4 +72,4 @@ Prior audits are cited, not repeated. Where a finding matches a public issue lis
 | 2 | `SPEC.md`, `PRODUCT_GUIDELINES.md`, `PREREGISTRATION.md` final, `SOURCES.yaml`, `LABELS.yaml`. | Preregistration FINAL; contracts frozen next. |
 | 3 | Contracts and glue for 3 pilot checkers; wire the runner to the engine; confirm the harness fits or decide the adapter. | Pilot verdicts stable. |
 | 4 | All in-scope contracts; `CONTRACTS.sha256` frozen; full runs; independent checker; receipts; fresh-clone verification; numbers lock. | All receipts verify. |
-| 5 | Fix proposals; certificates; `results/REPORT.md`; `DISCLOSURE_NOTE.md`; `APPLICATION_LINES.md`. | Deliverables complete. |
+| 5 | Fix proposals; certificates; `results/REPORT.md`; `DISCLOSURE_NOTE.md`. | Deliverables complete. |
