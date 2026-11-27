@@ -64,7 +64,7 @@ Two legs, on OpenAI's published checker code at pinned commits (`SOURCES.yaml`):
 | simple-evals / MGSM | The number regex drops the sign (opposite-sign answers credited) and returns the last number (a trailing aside overrides the answer). | #129, #132 (SE-KNOWN-04) |
 | simple-evals / MMLU | Extraction takes the first answer line (a revised final answer is ignored) and credits a multi-letter hedge as the first letter. | #33 (SE-KNOWN-03) |
 
-Each finding's proposed fix is in `results/findings.yaml`; worked patches with a valid-submission regression check for the three candidate-new findings are in `results/fixes/`.
+Each finding's proposed fix is in `results/findings.yaml`. For champs and nomad2018, `results/fixes/` has a worked patch with a regression check that valid submissions still score the same (`regression.py` passes). uw-madison's fix is described in `results/fixes/FIXES.md` but does not yet have an automated regression (its run-length-encoded masks make an inline one heavier); the fix is the same pattern as nomad2018 (align by id, check length and id-set).
 
 ## 5. Cost and time
 

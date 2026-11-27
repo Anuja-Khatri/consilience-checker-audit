@@ -17,9 +17,12 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "src"))
+import argparse  # noqa: E402
 import mleb_check as mc  # noqa: E402
 
-MLEB = mc.DEFAULT_MLEB_ROOT
+_ap = argparse.ArgumentParser(description="Fix regressions; point --mleb-root at your mle-bench clone.")
+_ap.add_argument("--mleb-root", default=mc.DEFAULT_MLEB_ROOT)
+MLEB = _ap.parse_args().mleb_root
 mc._install_mlebench(MLEB)
 
 
