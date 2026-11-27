@@ -1,16 +1,31 @@
 # consilience-checker-audit
 
-**A reusable tool for checker-integrity audits: state what a grader should accept, attack it before anyone optimises against it, and get a receipt. Deterministic graders and model-judge extractors. The evaluations OpenAI publishes as open code are the first demonstration.**
+**Check the graders behind your evaluations before they mislead you.** State what a grader should accept, attack it, and get a receipt that proves what holds and what breaks.
 
-This is a generic Consilience capability, not a one-off script. Anyone can clone it and run it on their own checkers, including ones they cannot release. OpenAI's public eval graders are the worked example that ships with it.
+Evaluations, leaderboards and RL reward signals all rest on *checkers*: the graders, reward functions and judges that turn a model's output into a score. When a checker accepts an invalid answer, grades by row position, trusts a number the answer reports about itself, or hands a medal to a trivially partial submission, every number built on it can be wrong and nobody sees it. This tool finds those gaps and proves each one with a counterexample anyone can re-run.
 
-Status: the suite, the OpenAI demonstration, and the report are complete. See `results/REPORT.md`.
+It is a reusable tool, not a one-off script: clone it, point a one-page contract at any grader, and it reports whether the grader is sound. You can run it on graders you cannot release. The graders OpenAI publishes as open code are the worked demonstration that ships with it.
 
----
+It is part of **[Consilience](https://github.com/Anuja-Khatri/consilience-core)**, a deterministic verification engine (a typed input goes in, a checkable verdict comes out, with a receipt). This repository applies that discipline to eval checkers, reusing the engine's verdicts, receipts and `verify` step rather than reinventing them.
 
-## What a checker is, and why audit it
+## Status and scope
 
-Evaluations rest on checkers: the graders, reward functions, test suites and model judges that turn a model's output into a score. If a checker accepts an invalid answer, trusts a number the answer reports about itself, grades by row position, or flips its verdict on a rounding error, then a search run against it, or a safety decision made on it, can be wrong in a way no one sees. This tool finds those gaps and proves each one with a re-runnable receipt.
+Complete, verified, and reproduced from a fresh clone. It covers two kinds of checker:
+- **deterministic graders** (code that scores a submission table), and
+- **deterministic answer extractors** (code that reads a final answer out of a model's text response).
+
+Checking **live model-judge graders** (LLM-as-judge, such as BrowseComp's grader) is designed and documented (`SPEC.md`, `GRADERS.md`) but **not yet run** here: it needs a judge-model API key, which was out of scope for this pass. Everything shipped is deterministic and costs nothing to run.
+
+## Results at a glance (the OpenAI demonstration)
+
+Full report, limits first: **[`results/REPORT.md`](results/REPORT.md)**.
+
+- **MLE-bench system-card graders (30):** **23 hold on every check**, 6 break, 1 could not be run by this harness.
+- **simple-evals answer extractors (3):** all 3 break, each confirming an already-filed issue.
+- **10 findings total:** 3 look new (not found in the public trackers), 7 confirm issues others already filed (cited, not claimed new).
+- **Every finding was confirmed a second independent way** (17 of 17, zero disagreements), and the whole run reproduces from a fresh clone at **$0**.
+
+A clean result is a real result: "23 of 30 graders hold, with the coverage stated" is the headline, not a bug count.
 
 ## Quick start (clone and run)
 
@@ -62,7 +77,7 @@ Deterministic graders (`src/mleb_check.py`, harness `mlebench` or `callable`):
 - **range** — an out-of-range prediction accepted and winning a medal.
 - **no_free_gold_subset_perfect** — a submission perfect on one aggregation group only winning a medal.
 
-Model-judge answer extractors (`src/extract_check.py`): crafted probes at known validity test extraction leniency and brittleness (hedges, substring matches, sign and locale parsing, first-vs-final answer).
+Answer extractors (`src/extract_check.py`), the deterministic code that reads a final answer out of a model's text response: crafted probes at known validity test extraction leniency and brittleness (hedges, substring matches, sign and locale parsing, first-vs-final answer). Checking a *live* LLM judge is the designed-but-not-yet-run extension noted above.
 
 Every run writes a receipt (verdict, counterexample, input hashes). `check_independent.py` re-derives every finding a second way, importing nothing from the checker. `src/build_report.py` locks the numbers and writes one certificate per checker.
 
